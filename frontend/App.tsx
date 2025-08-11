@@ -1,120 +1,73 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
+import React, { useState } from 'react';
+import { StatusBar } from 'react-native';
 
-import React, {type PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import WelcomeScreen from './src/screens/WelcomeScreen'; 
+import PhoneNumberScreen from './src/screens/PhoneNumberScreen';
+import OTPScreen from './src/screens/OTPScreen';
+import ProfileCreationScreen from './src/screens/ProfileCreationScreen';
+import SignInScreen from './src/screens/SignInScreen';
+import MatchScreen from './src/screens/MatchScreen';
+import ChatScreen from './src/screens/ChatScreen';
+import MainTabNavigator from './src/navigation/MainTabNavigator';
 
-const Section: React.FC<
-  PropsWithChildren<{
-    title: string;
-  }>
-> = ({children, title}) => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+const Stack = createNativeStackNavigator();
 
-const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+function App(): React.JSX.Element {
+  const [likedEvents, setLikedEvents] = useState([]);
+  const [matches, setMatches] = useState([]);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const handleSwipeRightEvent = (event: any) => {
+    // Avoid adding duplicate events
+    if (!likedEvents.find(e => e.id === event.id)) {
+      setLikedEvents(prevEvents => [...prevEvents, event]);
+    }
+  };
+
+  const handleMatch = (person: any, navigation: any) => {
+    // Avoid adding duplicate matches
+    if (!matches.find(m => m.id === person.id)) {
+      setMatches(prevMatches => [...prevMatches, person]);
+    }
+    navigation.navigate('Match', { user2: person });
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+    <NavigationContainer>
+      <StatusBar barStyle={'dark-content'} />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/* Auth stack */}
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen name="PhoneNumber" component={PhoneNumberScreen} />
+        <Stack.Screen name="OTP" component={OTPScreen} />
+        <Stack.Screen name="ProfileCreation" component={ProfileCreationScreen} />
+        <Stack.Screen name="SignIn" component={SignInScreen} />
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+        {/* Main app (Tab Navigator) */}
+        <Stack.Screen name="MainApp">
+          {(props) => (
+            <MainTabNavigator 
+              {...props} 
+              likedEvents={likedEvents}
+              matches={matches}
+              onSwipeRightEvent={handleSwipeRightEvent}
+              onMatch={handleMatch} // Pass the onMatch function down
+            />
+          )}
+        </Stack.Screen>
+        
+        {/* Chat screen is still needed in the main stack */}
+        <Stack.Screen name="Chat" component={ChatScreen} />
+        
+        {/* Match screen is a modal on top of everything */}
+        <Stack.Group screenOptions={{ presentation: 'transparentModal' }}>
+          <Stack.Screen name="Match" component={MatchScreen} />
+        </Stack.Group>
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 export default App;

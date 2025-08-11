@@ -1,68 +1,97 @@
-# This template is deprecated
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-React Native added [first-class support for Typescript in version 0.71](https://reactnative.dev/blog/2023/01/03/typescript-first), with the base template now utilizing it. Additionally, the types have been integrated into the React Native repository. Although this template can still be used to generate projects with older versions of React Native, we will no longer update it. We would like to express our gratitude to all contributors for their efforts in enhancing this template over the years.
+# Getting Started
 
-## :space_invader: React Native Template TypeScript
+> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
-<p>
-  <a href="https://github.com/react-native-community/react-native-template-typescript/actions/workflows/npm-publish.yml">
-    <img alt="Build Status" src="https://github.com/react-native-community/react-native-template-typescript/actions/workflows/npm-publish.yml/badge.svg" />
-  </a>
-  <a href="https://github.com/react-native-community/react-native-template-typescript#readme">
-    <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
-  </a>
-  <a href="https://github.com/react-native-community/react-native-template-typescript/graphs/commit-activity">
-    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
-  </a>
-  <a href="https://github.com/react-native-community/react-native-template-typescript/blob/master/LICENSE">
-    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
-  </a>
-</p>
+## Step 1: Start Metro
 
-> Clean and minimalist React Native template for a quick start with TypeScript.
+First, you will need to run **Metro**, the JavaScript build tool for React Native.
 
-## :star: Features
-
-- Elegant usage directly within the [React Native CLI](https://github.com/react-native-community/cli)
-- Consistent with the default React Native template
-- Minimal additional dependencies
-
-## :arrow_forward: Usage
+To start the Metro dev server, run the following command from the root of your React Native project:
 
 ```sh
-npx react-native init MyApp --template react-native-template-typescript@6.12.10
+# Using npm
+npm start
+
+# OR using Yarn
+yarn start
 ```
 
-See the below table to find out which version of the template to use.
+## Step 2: Build and run your app
 
-#### React Native <=> Template Version
+With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
 
-| React Native | Template |
-| ------------ | -------- |
-| 0.70         | 6.12.\*  |
-| 0.69         | 6.11.\*  |
-| 0.68         | 6.10.\*  |
-| 0.67         | 6.9.\*   |
-| 0.66         | 6.8.\*   |
-| 0.65         | 6.7.\*   |
-| 0.64         | 6.6.\*   |
-| 0.63         | 6.5.\*   |
-| 0.62         | 6.4.\*   |
-| 0.61         | 6.3.\*   |
-| 0.60         | 6.2.\*   |
+### Android
 
-## :warning: React Native CLI
+```sh
+# Using npm
+npm run android
 
-This template only works with the new CLI. Make sure you have uninstalled the legacy `react-native-cli` first (`npm uninstall -g react-native-cli`) for the below command to work. If you wish to not use `npx`, you can also install the new CLI globally (`npm i -g @react-native-community/cli` or `yarn global add @react-native-community/cli`).
+# OR using Yarn
+yarn android
+```
 
-If you tried the above and still get the react-native-template-react- native-template-typescript: Not found error, please try adding the `--ignore-existing` flag to [force npx to ignore](https://github.com/npm/npx#description) any locally installed versions of the CLI and use the latest.
+### iOS
 
-Further information can be found here: https://github.com/react-native-community/cli#about
+For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
 
-## :computer: Contributing
+The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
 
-Contributions are very welcome. Please check out the [contributing document](CONTRIBUTING.md).
+```sh
+bundle install
+```
 
-## :bookmark: License
+Then, and every time you update your native dependencies, run:
 
-This project is [MIT](LICENSE) licensed.
+```sh
+bundle exec pod install
+```
+
+For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+
+```sh
+# Using npm
+npm run ios
+
+# OR using Yarn
+yarn ios
+```
+
+If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+
+This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+
+## Step 3: Modify your app
+
+Now that you have successfully run the app, let's make changes!
+
+Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+
+When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+
+- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
+- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+
+## Congratulations! :tada:
+
+You've successfully run and modified your React Native App. :partying_face:
+
+### Now what?
+
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+
+# Troubleshooting
+
+If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+
+# Learn More
+
+To learn more about React Native, take a look at the following resources:
+
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
