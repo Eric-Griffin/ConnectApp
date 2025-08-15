@@ -1,10 +1,44 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
 
-// This component now receives the `navigation` prop from its own Stack Navigator
-function MyEventsScreen({ likedEvents, navigation }: any) {
+// 1. Import our custom useApp hook
+import { useApp } from '../context/AppContext';
+
+function MyEventsScreen({ navigation }) {
+  // 2. "Tune in" to the context to get the data and functions
+  const { likedEvents, removeLikedEvent } = useApp();
+
+  const handleUnlikeEvent = (event) => {
+    Alert.alert(
+      "Unlike Event",
+      `Are you sure you want to remove "${event.name}" from your events?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Yes, Unlike", 
+          onPress: () => removeLikedEvent(event._id),
+          style: "destructive"
+        }
+      ]
+    );
+  };
+
+  const renderEventCard = ({ item: event }) => (
+    <TouchableOpacity 
+      style={styles.eventCard}
+      onPress={() => navigation.navigate('PeopleDeck', { eventId: event._id })}
+      onLongPress={() => handleUnlikeEvent(event)}
+    >
+      <Image source={{ uri: event.coverImageURL }} style={styles.eventImage} />
+      <View style={styles.eventTextContainer}>
+        <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
+        <Text style={styles.eventVenue} numberOfLines={1}>{event.venue}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>My Events</Text>
       </View>
@@ -15,24 +49,15 @@ function MyEventsScreen({ likedEvents, navigation }: any) {
           <Text style={styles.emptySubtext}>Swipe right on events in the Discover tab!</Text>
         </View>
       ) : (
-        <View style={styles.listContainer}>
-          {likedEvents.map((event: any) => (
-            <TouchableOpacity 
-              key={event.id} 
-              style={styles.eventCard}
-              // This now navigates within the MyEventsStackNavigator
-              onPress={() => navigation.navigate('PeopleDeck')}
-            >
-              <Image source={{ uri: event.image }} style={styles.eventImage} />
-              <View style={styles.eventTextContainer}>
-                <Text style={styles.eventName}>{event.name}</Text>
-                <Text style={styles.eventVenue}>{event.venue}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <FlatList
+          data={likedEvents}
+          renderItem={renderEventCard}
+          keyExtractor={(item) => item._id}
+          numColumns={2}
+          contentContainerStyle={styles.listContainer}
+        />
       )}
-    </ScrollView>
+    </View>
   );
 }
 
@@ -58,28 +83,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 150,
+    padding: 20,
   },
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1A1A1A',
+    textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 16,
     color: '#8E8E93',
     marginTop: 8,
+    textAlign: 'center',
   },
   listContainer: {
-    padding: 20,
+    padding: 10,
   },
   eventCard: {
-    flexDirection: 'row',
+    flex: 1,
+    margin: 10,
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 10,
-    marginBottom: 15,
-    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.22,
@@ -87,21 +112,21 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   eventImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
+    width: '100%',
+    aspectRatio: 3 / 4,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
   },
   eventTextContainer: {
-    marginLeft: 15,
-    flex: 1,
+    padding: 10,
   },
   eventName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
   eventVenue: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#8E8E93',
     marginTop: 4,
   },

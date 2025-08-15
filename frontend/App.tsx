@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'react-native';
-
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { AppProvider } from './src/context/AppContext';
 
 import WelcomeScreen from './src/screens/WelcomeScreen'; 
 import PhoneNumberScreen from './src/screens/PhoneNumberScreen';
@@ -12,61 +14,44 @@ import SignInScreen from './src/screens/SignInScreen';
 import MatchScreen from './src/screens/MatchScreen';
 import ChatScreen from './src/screens/ChatScreen';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
+import EditProfileScreen from './src/screens/EditProfileScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import EventMatchesScreen from './src/screens/EventMatchesScreen'; // Import the new screen
 
 const Stack = createNativeStackNavigator();
 
-function App(): React.JSX.Element {
-  const [likedEvents, setLikedEvents] = useState([]);
-  const [matches, setMatches] = useState([]);
-
-  const handleSwipeRightEvent = (event: any) => {
-    // Avoid adding duplicate events
-    if (!likedEvents.find(e => e.id === event.id)) {
-      setLikedEvents(prevEvents => [...prevEvents, event]);
-    }
-  };
-
-  const handleMatch = (person: any, navigation: any) => {
-    // Avoid adding duplicate matches
-    if (!matches.find(m => m.id === person.id)) {
-      setMatches(prevMatches => [...prevMatches, person]);
-    }
-    navigation.navigate('Match', { user2: person });
-  };
-
+const AppNavigator = () => {
   return (
-    <NavigationContainer>
-      <StatusBar barStyle={'dark-content'} />
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* Auth stack */}
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen name="PhoneNumber" component={PhoneNumberScreen} />
-        <Stack.Screen name="OTP" component={OTPScreen} />
-        <Stack.Screen name="ProfileCreation" component={ProfileCreationScreen} />
-        <Stack.Screen name="SignIn" component={SignInScreen} />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
+      <Stack.Screen name="PhoneNumber" component={PhoneNumberScreen} />
+      <Stack.Screen name="OTP" component={OTPScreen} />
+      <Stack.Screen name="ProfileCreation" component={ProfileCreationScreen} />
+      <Stack.Screen name="SignIn" component={SignInScreen} />
+      <Stack.Screen name="MainApp" component={MainTabNavigator} />
+      <Stack.Screen name="Chat" component={ChatScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      {/* Add the new EventMatches screen to the stack */}
+      <Stack.Screen name="EventMatches" component={EventMatchesScreen} />
+      
+      <Stack.Group screenOptions={{ presentation: 'transparentModal' }}>
+        <Stack.Screen name="Match" component={MatchScreen} />
+      </Stack.Group>
+    </Stack.Navigator>
+  );
+};
 
-        {/* Main app (Tab Navigator) */}
-        <Stack.Screen name="MainApp">
-          {(props) => (
-            <MainTabNavigator 
-              {...props} 
-              likedEvents={likedEvents}
-              matches={matches}
-              onSwipeRightEvent={handleSwipeRightEvent}
-              onMatch={handleMatch} // Pass the onMatch function down
-            />
-          )}
-        </Stack.Screen>
-        
-        {/* Chat screen is still needed in the main stack */}
-        <Stack.Screen name="Chat" component={ChatScreen} />
-        
-        {/* Match screen is a modal on top of everything */}
-        <Stack.Group screenOptions={{ presentation: 'transparentModal' }}>
-          <Stack.Screen name="Match" component={MatchScreen} />
-        </Stack.Group>
-      </Stack.Navigator>
-    </NavigationContainer>
+function App(): React.JSX.Element {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppProvider>
+        <NavigationContainer>
+          <StatusBar barStyle={'dark-content'} />
+          <AppNavigator />
+        </NavigationContainer>
+      </AppProvider>
+    </GestureHandlerRootView>
   );
 }
 

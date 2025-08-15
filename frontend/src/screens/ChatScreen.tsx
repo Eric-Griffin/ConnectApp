@@ -10,40 +10,40 @@ import {
   Platform,
 } from 'react-native';
 
-// This is a placeholder component for a single chat bubble
-const MessageBubble = ({ text, isMyMessage }: any) => (
+const MessageBubble = ({ text, isMyMessage }) => (
   <View style={[
     styles.messageBubble,
     isMyMessage ? styles.myMessage : styles.theirMessage
   ]}>
-    <Text style={styles.messageText}>{text}</Text>
+    <Text style={isMyMessage ? styles.myMessageText : styles.theirMessageText}>{text}</Text>
   </View>
 );
 
-function ChatScreen({ navigation }: any) {
+// The component now receives the `route` prop, which contains the user data
+function ChatScreen({ navigation, route }) {
+  // 1. We get the specific user object from the route params.
+  const { user } = route.params;
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header with back button and user's name */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButton}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Priya</Text>
+        {/* 2. We use the user's name from the data instead of a hardcoded name. */}
+        <Text style={styles.headerTitle}>{user.name}</Text>
         <View style={{ width: 30 }} /> 
       </View>
 
-      {/* This component ensures the keyboard doesn't cover the input */}
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingView}
       >
-        {/* Placeholder for the list of messages */}
         <View style={styles.messageList}>
-            <MessageBubble text="Hey! Saw we matched for the Anuv Jain concert." isMyMessage={false} />
-            <MessageBubble text="Yeah! So excited for it. Have you seen him live before?" isMyMessage={true} />
+            <MessageBubble text={`Hey! Saw we matched for the event.`} isMyMessage={false} />
+            <MessageBubble text="Yeah! So excited for it." isMyMessage={true} />
         </View>
 
-        {/* The text input bar at the bottom */}
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.textInput}
@@ -128,9 +128,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E5EA',
     alignSelf: 'flex-start',
   },
-  messageText: {
+  myMessageText: {
     fontSize: 16,
+    color: '#FFFFFF',
   },
+  theirMessageText: {
+    fontSize: 16,
+    color: '#1A1A1A',
+  }
 });
 
 export default ChatScreen;

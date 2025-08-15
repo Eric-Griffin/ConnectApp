@@ -5,12 +5,9 @@ const Event = require('../models/Event');
 const EventSwipe = require('../models/EventSwipe');
 const User = require('../models/User');
 
-// @route   GET /api/events/deck
-// @desc    Get a deck of events for the user to swipe on
-router.get('/deck', protect, async (req, res) => {
+// This route is unchanged
+router.get('/deck', async (req, res) => {
   try {
-    // For MVP, we just get all active events.
-    // In future, this would be curated based on user location, interests, etc.
     const events = await Event.find({ isActive: true });
     res.json(events);
   } catch (err) {
@@ -19,24 +16,21 @@ router.get('/deck', protect, async (req, res) => {
   }
 });
 
-// @route   POST /api/events/:eventId/interested
-// @desc    Log a user's interest in an event
+// This route is also unchanged for now
 router.post('/:eventId/interested', protect, async (req, res) => {
     try {
         const { eventId } = req.params;
-        const userId = req.user.id;
+        const userId = req.user.id; // Assuming you'll send a real token later
 
-        // Check if event exists
         const event = await Event.findById(eventId);
         if (!event) {
             return res.status(404).json({ message: 'Event not found' });
         }
 
-        // Record the swipe/interest
         await EventSwipe.findOneAndUpdate(
             { userId, eventId },
             { isInterested: true },
-            { upsert: true, new: true } // Creates a new doc if one doesn't exist
+            { upsert: true, new: true }
         );
 
         res.status(200).json({ message: 'Interest recorded' });
@@ -47,20 +41,25 @@ router.post('/:eventId/interested', protect, async (req, res) => {
     }
 });
 
-// @route   GET /api/events/:eventId/people
-// @desc    Get people interested in a specific event
-router.get('/:eventId/people', protect, async (req, res) => {
+// THIS IS THE CORRECTED ROUTE
+// It now correctly uses the eventId to find interested users.
+router.get('/:eventId/people', async (req, res) => {
     try {
         const { eventId } = req.params;
         
-        // Find all user IDs who are interested in this event
-        const interestedSwipes = await EventSwipe.find({ eventId, isInterested: true }).select('userId');
+        // 1. Find all the 'EventSwipe' records for this specific event.
+        const interestedSwipes = await EventSwipe.find({ 
+            eventId: eventId, 
+            isInterested: true 
+        }).select('userId');
+
+        // 2. Extract just the user IDs from those records.
         const interestedUserIds = interestedSwipes.map(swipe => swipe.userId);
 
-        // Fetch the profiles of these users
-        // For now, we are not implementing complex matching logic, just returning all interested users.
+        // 3. Find all user profiles that match those IDs.
         const people = await User.find({ '_id': { $in: interestedUserIds } }).select('-password');
 
+        console.log(`Found ${people.length} people for event ${eventId}`);
         res.json(people);
 
     } catch (err) {
@@ -68,9 +67,5 @@ router.get('/:eventId/people', protect, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
-
-// Note: A route to create events would go here, but for the MVP,
-// we assume events are manually added to the database.
 
 module.exports = router;

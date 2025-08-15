@@ -22,6 +22,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/events', require('./routes/events'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/matches', require('./routes/matches'));
+app.use('/api/swipes', require('./routes/swipes'));
 
 // Simple route for testing if the server is up
 app.get('/', (req, res) => {

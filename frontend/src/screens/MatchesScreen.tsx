@@ -1,41 +1,95 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
 
-// This component now receives the `matches` array and `navigation` prop
-function MatchesScreen({ matches, navigation }: any) {
+import { useApp } from '../context/AppContext';
+
+const EventMatchBanner = ({ event, matchesForEvent, onPress }) => {
+  const displayedMatches = matchesForEvent.slice(0, 3);
+  const remainingMatches = matchesForEvent.length - displayedMatches.length;
+
   return (
-    <ScrollView style={styles.container}>
+    <TouchableOpacity style={styles.bannerCard} onPress={onPress}>
+      <Image source={{ uri: event.coverImageURL }} style={styles.bannerImage} />
+      <View style={styles.bannerTextContainer}>
+        <Text style={styles.bannerTitle}>{event.name}</Text>
+        <Text style={styles.bannerSubtitle}>{matchesForEvent.length} Match{matchesForEvent.length > 1 ? 'es' : ''}</Text>
+      </View>
+      <View style={styles.matchPfpContainer}>
+        {displayedMatches.map((match, index) => (
+          <Image 
+            key={match._id} 
+            source={{ uri: match.image }} 
+            style={[styles.matchPfp, { marginLeft: index > 0 ? -15 : 0 }]}
+          />
+        ))}
+        {remainingMatches > 0 && (
+          <View style={[styles.matchPfp, styles.morePfp]}>
+            <Text style={styles.morePfpText}>+{remainingMatches}</Text>
+          </View>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+function MatchesScreen({ navigation }) {
+  const { matches, likedEvents } = useApp();
+
+  // THIS IS THE CORRECTED LOGIC
+  const groupedMatches = useMemo(() => {
+    if (!matches || matches.length === 0) return [];
+
+    // 1. Group all matches by their eventId
+    const groups = matches.reduce((acc, match) => {
+      const eventId = match.eventId; // We now correctly use the eventId from the match object
+      if (!acc[eventId]) {
+        acc[eventId] = [];
+      }
+      acc[eventId].push(match);
+      return acc;
+    }, {});
+
+    // 2. Convert the groups into an array for the list
+    return Object.keys(groups).map(eventId => {
+      const eventDetails = likedEvents.find(e => e._id === eventId);
+      return {
+        eventId,
+        event: eventDetails,
+        matches: groups[eventId],
+      };
+    }).filter(group => group.event); // Make sure we found valid event details
+  }, [matches, likedEvents]);
+
+
+  return (
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Matches</Text>
       </View>
 
-      {/* We check if the matches array is empty */}
-      {matches.length === 0 ? (
-        // If it's empty, show this message
+      {groupedMatches.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No matches yet.</Text>
           <Text style={styles.emptySubtext}>Keep swiping to find your concert buddy!</Text>
         </View>
       ) : (
-        // If it's not empty, we render a card for each match
-        <View style={styles.listContainer}>
-          {matches.map((match: any) => (
-            <TouchableOpacity 
-              key={match.id} 
-              style={styles.matchCard}
-              // When tapped, navigate to the Chat screen
-              onPress={() => navigation.navigate('Chat', { user: match })}
-            >
-              <Image source={{ uri: match.image }} style={styles.matchImage} />
-              <View style={styles.matchTextContainer}>
-                <Text style={styles.matchName}>{match.name}</Text>
-                <Text style={styles.matchBio} numberOfLines={1}>{match.bio}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <FlatList
+          data={groupedMatches}
+          keyExtractor={(item) => item.eventId}
+          renderItem={({ item }) => (
+            <EventMatchBanner
+              event={item.event}
+              matchesForEvent={item.matches}
+              onPress={() => navigation.navigate('EventMatches', { 
+                eventName: item.event.name,
+                matchesForEvent: item.matches 
+              })}
+            />
+          )}
+          contentContainerStyle={styles.listContainer}
+        />
       )}
-    </ScrollView>
+    </View>
   );
 }
 
@@ -50,7 +104,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#E0E0E-0',
   },
   title: {
     fontSize: 34,
@@ -61,7 +115,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 150,
+    padding: 20,
   },
   emptyText: {
     fontSize: 18,
@@ -76,37 +130,63 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 20,
   },
-  matchCard: {
-    flexDirection: 'row',
+  bannerCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 15,
-    alignItems: 'center',
+    borderRadius: 16,
+    marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
     elevation: 3,
   },
-  matchImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30, // Make it a circle
+  bannerImage: {
+    width: '100%',
+    height: 120,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
-  matchTextContainer: {
-    marginLeft: 15,
-    flex: 1,
+  bannerTextContainer: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    padding: 8,
+    borderRadius: 8,
   },
-  matchName: {
-    fontSize: 16,
+  bannerTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
-  matchBio: {
+  bannerSubtitle: {
     fontSize: 14,
+    color: '#FFFFFF',
+    marginTop: 2,
+  },
+  matchPfpContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  matchPfp: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  morePfp: {
+    backgroundColor: '#EFEFEF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: -15,
+  },
+  morePfpText: {
+    fontSize: 12,
+    fontWeight: '600',
     color: '#8E8E93',
-    marginTop: 4,
   },
 });
 
