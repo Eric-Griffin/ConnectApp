@@ -5,105 +5,141 @@ import {
   View,
   TouchableOpacity,
   TextInput,
+  SafeAreaView,
 } from 'react-native';
 
-// This screen now also accepts the `navigation` object
-function PhoneNumberScreen({ navigation }: any) {
+const PhoneNumberScreen = ({ navigation }: any) => {
   const [phoneNumber, setPhoneNumber] = useState('');
 
+  const isNextDisabled = phoneNumber.length < 10;
+
   return (
-    <View style={styles.fullScreen}>
-      <View style={styles.onboardingContent}>
-        <Text style={styles.onboardingTitle}>What's your number?</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.backButton}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Number</Text>
+        <View style={{width: 20}} />
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.title}>My mobile</Text>
+        <Text style={styles.subtitle}>
+          Please enter your valid phone number. We will send you a 4-digit code to verify your account.
+        </Text>
+
         <View style={styles.phoneInputContainer}>
-          <Text style={styles.countryCode}>+91</Text>
+          <View style={styles.countryCodePicker}>
+            <Text style={styles.countryCodeText}>🇺🇸 (+1)</Text>
+            <Text style={styles.dropdownArrow}>▾</Text>
+          </View>
           <TextInput
             style={styles.phoneInput}
-            placeholder="Your phone number"
-            keyboardType="phone-pad"
             value={phoneNumber}
             onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
             maxLength={10}
           />
         </View>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={styles.primaryButton} 
+
+        <TouchableOpacity
+          style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
+          disabled={isNextDisabled}
           onPress={() => navigation.navigate('OTP')}
         >
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>
-        {/* navigation.goBack() is the standard way to go to the previous screen */}
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.secondaryButtonText}>Back</Text>
-        </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  fullScreen: {
+  container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#FFFFFF',
   },
-  onboardingContent: {
-    flex: 1,
-    justifyContent: 'center',
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 20,
+    backgroundColor: '#F7F8FA',
   },
-  onboardingTitle: {
-    fontSize: 34,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    marginBottom: 20,
+  backButton: {
+    fontSize: 30,
+    color: '#000000',
+    fontFamily: 'Sk-Modernist-Regular',
+  },
+  headerTitle: {
+    fontSize: 18,
+    color: '#8E8E93',
+    fontFamily: 'Sk-Modernist-Regular',
+    lineHeight: 24,
+  },
+  content: {
+    flex: 1,
+    padding: 24,
+    paddingTop: 40,
+  },
+  title: {
+    fontSize: 32,
+    fontFamily: 'Sk-Modernist-Bold',
+    color: '#000000',
+    marginBottom: 8,
+    lineHeight: 40,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: 'Sk-Modernist-Regular',
+    color: '#8E8E93',
+    marginBottom: 40,
+    lineHeight: 22,
   },
   phoneInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: '#1A1A1A',
-    paddingBottom: 10,
+    backgroundColor: '#F7F8FA',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    paddingHorizontal: 10,
   },
-  countryCode: {
-    fontSize: 24,
-    marginRight: 10,
-    color: '#1A1A1A',
+  countryCodePicker: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 18,
+  },
+  countryCodeText: {
+    fontSize: 16,
+    fontFamily: 'Sk-Modernist-Regular',
+    marginRight: 5,
+  },
+  dropdownArrow: {
+    fontSize: 12,
   },
   phoneInput: {
-    fontSize: 24,
     flex: 1,
-    color: '#1A1A1A',
-  },
-  buttonContainer: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 18,
+    fontSize: 16,
+    fontFamily: 'Sk-Modernist-Regular',
+    color: '#000000',
   },
   primaryButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
+    backgroundColor: '#A8D1E7',
+    padding: 18,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 10,
+    marginTop: 30,
   },
   primaryButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
+    fontFamily: 'Sk-Modernist-Bold',
   },
-  backButton: {
-    marginTop: 10,
-    alignItems: 'center',
-    padding: 10,
-  },
-  secondaryButtonText: {
-    color: '#007AFF',
-    fontSize: 18,
-    fontWeight: '600',
+  disabledButton: {
+    backgroundColor: '#DCEBFF',
   },
 });
 

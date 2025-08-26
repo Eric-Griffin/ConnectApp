@@ -4,46 +4,41 @@ import {
   Text,
   View,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 
-// React Navigation automatically gives a `navigation` object to every screen.
-// We just need to tell our component to accept it.
-function WelcomeScreen({ navigation }: any) {
+const WelcomeScreen = ({ navigation }: any) => {
   return (
-    <View style={styles.fullScreen}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoText}>C</Text>
-        </View>
-        <Text style={styles.title}>Connect</Text>
-        <Text style={styles.tagline}>Never go alone.</Text>
+        {/* Placeholder for your purple logo */}
+        <View style={styles.logoPlaceholder} />
+
+        <Text style={styles.slogan}>Never go alone.</Text>
       </View>
 
-      <View style={styles.buttonContainer}>
-        {/* We now use navigation.navigate() to go to a new screen.
-            The name 'PhoneNumber' must match the name we gave in App.tsx */}
+      <View style={styles.footer}>
         <TouchableOpacity 
-          style={styles.primaryButton} 
-          onPress={() => navigation.navigate('PhoneNumber')}
+          style={styles.primaryButton}
+          onPress={() => navigation.navigate('SignUpOptions')}
         >
-          <Text style={styles.primaryButtonText}>Create Account</Text>
+          <Text style={styles.primaryButtonText}>Create an account</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.secondaryButton} 
-          onPress={() => navigation.navigate('SignIn')}
-        >
-          <Text style={styles.secondaryButtonText}>Sign In</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+          <Text style={styles.signInText}>
+            Already have an account? <Text style={styles.signInLink}>Sign In</Text>
+          </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  fullScreen: {
+  container: {
     flex: 1,
-    backgroundColor: '#F8F8F8', // Added background color here
+    backgroundColor: '#F7F8FA', // Light gray background from design
   },
   content: {
     flex: 1,
@@ -52,54 +47,46 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logoPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 20,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: '#D0A8FF', // Placeholder purple
+    marginBottom: 24,
   },
-  logoText: {
-    fontSize: 60,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+  slogan: {
+    fontFamily: 'Sk-Modernist-Bold',
+    fontSize: 24,
+    color: '#000000',
+    textAlign: 'center',
+    lineHeight: 32, 
   },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-  },
-  tagline: {
-    fontSize: 18,
-    color: '#8E8E93',
-    marginTop: 8,
-  },
-  buttonContainer: {
+  footer: {
     padding: 20,
     paddingBottom: 40,
   },
   primaryButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
+    backgroundColor: '#A8D1E7', // Light blue accent
+    padding: 18,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   primaryButtonText: {
+    fontFamily: 'Sk-Modernist-Bold',
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
   },
-  secondaryButton: {
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
+  signInText: {
+    fontFamily: 'Sk-Modernist-Regular',
+    color: '#8E8E93', // Gray text
+    fontSize: 14,
+    textAlign: 'center',
+    // THIS IS THE FIX
+    lineHeight: 20, 
   },
-  secondaryButtonText: {
-    color: '#007AFF',
-    fontSize: 18,
-    fontWeight: '600',
+  signInLink: {
+    color: '#A8D1E7', // Light blue link
+    fontFamily: 'Sk-Modernist-Bold',
   },
 });
 

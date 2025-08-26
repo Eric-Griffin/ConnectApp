@@ -1,15 +1,34 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
 
 import { useApp } from '../context/AppContext';
+import CustomHeader from '../components/CustomHeader';
 
-const EventMatchBanner = ({ event, matchesForEvent, onPress }) => {
+// 1. We define the "shape" of our data to fix all TypeScript errors.
+type Match = {
+  _id: string;
+  name: string;
+  age: number;
+  bio: string;
+  image: string;
+  eventId: string;
+};
+
+type Event = {
+  _id: string;
+  name: string;
+  coverImageURL: string;
+};
+
+// This is the component for the Event Banner
+const EventMatchBanner = ({ event, matchesForEvent, onPress }: { event: Event, matchesForEvent: Match[], onPress: () => void }) => {
   const displayedMatches = matchesForEvent.slice(0, 3);
   const remainingMatches = matchesForEvent.length - displayedMatches.length;
 
   return (
     <TouchableOpacity style={styles.bannerCard} onPress={onPress}>
       <Image source={{ uri: event.coverImageURL }} style={styles.bannerImage} />
+      <View style={styles.bannerOverlay} />
       <View style={styles.bannerTextContainer}>
         <Text style={styles.bannerTitle}>{event.name}</Text>
         <Text style={styles.bannerSubtitle}>{matchesForEvent.length} Match{matchesForEvent.length > 1 ? 'es' : ''}</Text>
@@ -32,16 +51,15 @@ const EventMatchBanner = ({ event, matchesForEvent, onPress }) => {
   );
 };
 
-function MatchesScreen({ navigation }) {
+function MatchesScreen({ navigation }: any) {
   const { matches, likedEvents } = useApp();
 
-  // THIS IS THE CORRECTED LOGIC
   const groupedMatches = useMemo(() => {
     if (!matches || matches.length === 0) return [];
 
-    // 1. Group all matches by their eventId
-    const groups = matches.reduce((acc, match) => {
-      const eventId = match.eventId; // We now correctly use the eventId from the match object
+    // THIS IS THE FIX for the first error. We define the shape of `acc`.
+    const groups = (matches as Match[]).reduce((acc: { [key: string]: Match[] }, match: Match) => {
+      const eventId = match.eventId;
       if (!acc[eventId]) {
         acc[eventId] = [];
       }
@@ -49,23 +67,19 @@ function MatchesScreen({ navigation }) {
       return acc;
     }, {});
 
-    // 2. Convert the groups into an array for the list
     return Object.keys(groups).map(eventId => {
-      const eventDetails = likedEvents.find(e => e._id === eventId);
+      const eventDetails = (likedEvents as Event[]).find(e => e._id === eventId);
       return {
         eventId,
         event: eventDetails,
         matches: groups[eventId],
       };
-    }).filter(group => group.event); // Make sure we found valid event details
+    }).filter(group => group.event);
   }, [matches, likedEvents]);
 
-
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Matches</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <CustomHeader />
 
       {groupedMatches.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -76,40 +90,42 @@ function MatchesScreen({ navigation }) {
         <FlatList
           data={groupedMatches}
           keyExtractor={(item) => item.eventId}
-          renderItem={({ item }) => (
-            <EventMatchBanner
-              event={item.event}
-              matchesForEvent={item.matches}
-              onPress={() => navigation.navigate('EventMatches', { 
-                eventName: item.event.name,
-                matchesForEvent: item.matches 
-              })}
-            />
-          )}
+          renderItem={({ item }) => {
+            // THIS IS THE FIX for the other two errors. We check if item.event exists.
+            if (!item.event) {
+              return null; // Don't render anything if the event details are missing
+            }
+            return (
+              <EventMatchBanner
+                event={item.event}
+                matchesForEvent={item.matches}
+                onPress={() => navigation.navigate('EventMatches', { 
+                  eventName: item.event!.name,
+                  matchesForEvent: item.matches 
+                })}
+              />
+            );
+          }}
           contentContainerStyle={styles.listContainer}
+          ListHeaderComponent={() => <Text style={styles.title}>Matches</Text>}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
-  },
-  header: {
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E-0',
+    backgroundColor: '#F7F8FA',
   },
   title: {
-    fontSize: 34,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontSize: 32,
+    fontFamily: 'Sk-Modernist-Bold',
+    color: '#A8D1E7',
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    lineHeight: 40,
   },
   emptyContainer: {
     flex: 1,
@@ -118,22 +134,25 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    fontSize: 22,
+    fontFamily: 'Sk-Modernist-Bold',
+    color: '#2C2C2E',
+    textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 16,
+    fontFamily: 'Sk-Modernist-Regular',
     color: '#8E8E93',
     marginTop: 8,
+    textAlign: 'center',
   },
   listContainer: {
-    padding: 20,
+    padding: 10,
   },
   bannerCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    marginBottom: 20,
+    margin: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -143,25 +162,27 @@ const styles = StyleSheet.create({
   bannerImage: {
     width: '100%',
     height: 120,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderRadius: 16,
+  },
+  bannerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 16,
   },
   bannerTextContainer: {
     position: 'absolute',
-    top: 10,
-    left: 10,
-    right: 10,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    padding: 8,
-    borderRadius: 8,
+    top: 15,
+    left: 15,
   },
   bannerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Sk-Modernist-Bold',
     color: '#FFFFFF',
+    lineHeight: 26,
   },
   bannerSubtitle: {
     fontSize: 14,
+    fontFamily: 'Sk-Modernist-Regular',
     color: '#FFFFFF',
     marginTop: 2,
   },
@@ -169,6 +190,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
+    marginTop: -30,
+    marginLeft: 10,
   },
   matchPfp: {
     width: 40,
@@ -178,14 +201,14 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   morePfp: {
-    backgroundColor: '#EFEFEF',
+    backgroundColor: '#EFEFF4',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: -15,
   },
   morePfpText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Sk-Modernist-Bold',
     color: '#8E8E93',
   },
 });

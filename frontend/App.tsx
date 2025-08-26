@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
@@ -6,33 +6,54 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AppProvider } from './src/context/AppContext';
 
-import WelcomeScreen from './src/screens/WelcomeScreen'; 
+// Import all screens
+import WelcomeScreen from './src/screens/WelcomeScreen';
+import SignUpOptionsScreen from './src/screens/SignUpOptionScreen';
+import SignInScreen from './src/screens/SignInScreen';
 import PhoneNumberScreen from './src/screens/PhoneNumberScreen';
 import OTPScreen from './src/screens/OTPScreen';
-import ProfileCreationScreen from './src/screens/ProfileCreationScreen';
-import SignInScreen from './src/screens/SignInScreen';
+import ProfileDetailsScreen from './src/screens/onboarding/ProfileDetailsScreen';
+import GenderScreen from './src/screens/onboarding/GenderScreen';
+import InterestsScreen from './src/screens/onboarding/InterestsScreen';
+import HabitsScreen from './src/screens/onboarding/HabitsScreen';
+import PromptsScreen from './src/screens/onboarding/PromptsScreen';
+import PhotosScreen from './src/screens/onboarding/PhotosScreen';
+import NotificationsScreen from './src/screens/onboarding/NotificationsScreen';
+import MainTabNavigator from './src/navigation/MainTabNavigator';
 import MatchScreen from './src/screens/MatchScreen';
 import ChatScreen from './src/screens/ChatScreen';
-import MainTabNavigator from './src/navigation/MainTabNavigator';
 import EditProfileScreen from './src/screens/EditProfileScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
-import EventMatchesScreen from './src/screens/EventMatchesScreen'; // Import the new screen
+import EventMatchesScreen from './src/screens/EventMatchesScreen';
 
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {/* Initial screens */}
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
+      <Stack.Screen name="SignUpOptions" component={SignUpOptionsScreen} />
+      <Stack.Screen name="SignIn" component={SignInScreen} />
+      
+      {/* Phone verification flow */}
       <Stack.Screen name="PhoneNumber" component={PhoneNumberScreen} />
       <Stack.Screen name="OTP" component={OTPScreen} />
-      <Stack.Screen name="ProfileCreation" component={ProfileCreationScreen} />
-      <Stack.Screen name="SignIn" component={SignInScreen} />
+
+      {/* New multi-step profile creation flow */}
+      <Stack.Screen name="OnboardingProfileDetails" component={ProfileDetailsScreen} />
+      <Stack.Screen name="OnboardingGender" component={GenderScreen} />
+      <Stack.Screen name="OnboardingInterests" component={InterestsScreen} />
+      <Stack.Screen name="OnboardingHabits" component={HabitsScreen} />
+      <Stack.Screen name="OnboardingPrompts" component={PromptsScreen} />
+      <Stack.Screen name="OnboardingPhotos" component={PhotosScreen} />
+      <Stack.Screen name="OnboardingNotifications" component={NotificationsScreen} />
+
+      {/* Main App */}
       <Stack.Screen name="MainApp" component={MainTabNavigator} />
       <Stack.Screen name="Chat" component={ChatScreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
-      {/* Add the new EventMatches screen to the stack */}
       <Stack.Screen name="EventMatches" component={EventMatchesScreen} />
       
       <Stack.Group screenOptions={{ presentation: 'transparentModal' }}>

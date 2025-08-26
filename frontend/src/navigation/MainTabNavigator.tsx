@@ -8,14 +8,16 @@ import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-// This component is now very simple. It just renders the tabs.
+// This component is now very simple. It no longer needs to manage or pass any data.
 function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#007AFF',
+        tabBarActiveTintColor: '#A8D1E7', // Using the Figma blue
         tabBarInactiveTintColor: '#8E8E93',
+        tabBarStyle: { backgroundColor: '#FFFFFF', borderTopColor: '#EFEFEF' },
+        tabBarLabelStyle: { fontFamily: 'Sk-Modernist-Regular' },
       }}
     >
       <Tab.Screen name="Discover" component={DiscoverScreen} />

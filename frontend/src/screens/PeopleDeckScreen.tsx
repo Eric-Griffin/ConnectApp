@@ -4,7 +4,16 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } fr
 import SwipeableCard from '../components/SwipeableCard';
 import { useApp } from '../context/AppContext';
 
-const PersonCard = ({ card }) => (
+// 1. We define the "shape" of a Person object
+type Person = {
+  _id: string;
+  name: string;
+  age: number;
+  bio: string;
+  image: string;
+};
+
+const PersonCard = ({ card }: { card: Person }) => (
   <View style={styles.card}>
     <Image source={{ uri: card.image }} style={styles.cardImage} />
     <View style={styles.cardTextContainer}>
@@ -14,20 +23,21 @@ const PersonCard = ({ card }) => (
   </View>
 );
 
-const EmptyState = ({ title, subtitle }) => (
+const EmptyState = ({ title, subtitle }: any) => (
     <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>{title}</Text>
         <Text style={styles.emptySubtext}>{subtitle}</Text>
     </View>
 );
 
-function PeopleDeckScreen({ navigation, route }) {
+function PeopleDeckScreen({ navigation, route }: any) {
   const { addMatch } = useApp();
   const { eventId } = route.params;
   
-  const [people, setPeople] = useState([]);
+  // 2. We tell useState the correct types for our state variables
+  const [people, setPeople] = useState<Person[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -55,14 +65,13 @@ function PeopleDeckScreen({ navigation, route }) {
   const handleSwipeRight = () => {
     const person = people[currentIndex];
     setTimeout(() => {
-      // THIS IS THE FIX: We now pass the eventId to the addMatch function.
       addMatch(person, eventId, navigation);
     }, 250);
     handleSwipe();
   };
 
   if (isLoading) {
-    return <View style={styles.emptyContainer}><ActivityIndicator size="large" color="#007AFF" /></View>;
+    return <View style={styles.emptyContainer}><ActivityIndicator size="large" color="#A8D1E7" /></View>;
   }
 
   if (error) {
@@ -96,7 +105,7 @@ function PeopleDeckScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#F7F8FA',
   },
   deckContainer: {
     flex: 1,
@@ -104,19 +113,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   header: {
-    paddingTop: 60,
+    paddingTop: 50,
     paddingBottom: 10,
     paddingHorizontal: 20,
     zIndex: 1,
   },
   backButton: {
     fontSize: 18,
-    color: '#007AFF',
-    fontWeight: '600',
+    color: '#A8D1E7',
+    fontFamily: 'Sk-Modernist-Bold',
   },
   card: {
-    width: '90%',
-    height: '85%',
+    width: '95%',
+    height: '95%',
     borderRadius: 20,
     backgroundColor: '#FFFFFF',
     shadowColor: '#000',
@@ -143,11 +152,12 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Sk-Modernist-Bold',
     color: '#FFFFFF',
   },
   cardSubtitle: {
     fontSize: 16,
+    fontFamily: 'Sk-Modernist-Regular',
     color: '#FFFFFF',
     marginTop: 4,
   },
@@ -159,12 +169,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontFamily: 'Sk-Modernist-Bold',
+    color: '#2C2C2E',
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 16,
+    fontFamily: 'Sk-Modernist-Regular',
     color: '#8E8E93',
     marginTop: 8,
     textAlign: 'center',

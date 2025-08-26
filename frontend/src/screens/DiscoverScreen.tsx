@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, StatusBar, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native';
 
-// 1. Import our new custom SwipeableCard component
 import SwipeableCard from '../components/SwipeableCard';
 import { useApp } from '../context/AppContext';
+import CustomHeader from '../components/CustomHeader';
 
-// This is the UI for a single card. It's just a view, no logic.
-const EventCard = ({ card }) => (
+// 1. We define the "shape" of an Event object
+type Event = {
+  _id: string;
+  name: string;
+  venue: string;
+  coverImageURL: string;
+};
+
+const EventCard = ({ card }: { card: Event }) => (
   <View style={styles.card}>
     <Image source={{ uri: card.coverImageURL }} style={styles.cardImage} />
     <View style={styles.cardTextContainer}>
@@ -16,7 +23,7 @@ const EventCard = ({ card }) => (
   </View>
 );
 
-const EmptyState = ({ title, subtitle }) => (
+const EmptyState = ({ title, subtitle }: any) => (
     <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>{title}</Text>
         <Text style={styles.emptySubtext}>{subtitle}</Text>
@@ -25,10 +32,10 @@ const EmptyState = ({ title, subtitle }) => (
 
 function DiscoverScreen() {
   const { addLikedEvent } = useApp();
-  const [events, setEvents] = useState([]);
+  // 2. We tell useState the correct types for our state variables
+  const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  // This state keeps track of the current active card index.
+  const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -47,7 +54,6 @@ function DiscoverScreen() {
     fetchEvents();
   }, []);
 
-  // This function is called when a swipe happens. It just moves to the next card.
   const handleSwipe = () => {
     setCurrentIndex(prevIndex => prevIndex + 1);
   };
@@ -58,29 +64,38 @@ function DiscoverScreen() {
   };
 
   if (isLoading) {
-    return <View style={styles.emptyContainer}><ActivityIndicator size="large" color="#007AFF" /></View>;
+    return (
+        <View style={styles.container}>
+            <CustomHeader />
+            <View style={styles.emptyContainer}><ActivityIndicator size="large" color="#A8D1E7" /></View>
+        </View>
+    );
   }
 
   if (error) {
-    return <EmptyState title="Something went wrong" subtitle={error} />;
+    return (
+        <View style={styles.container}>
+            <CustomHeader />
+            <EmptyState title="Something went wrong" subtitle={error} />
+        </View>
+    );
   }
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle={'dark-content'} />
+      <CustomHeader />
       <View style={styles.deckContainer}>
-        {/* We check if there are any cards left to show */}
         {currentIndex < events.length ? (
-          // We render the top card as interactive.
-          <SwipeableCard
-            key={events[currentIndex]._id}
-            onSwipeLeft={handleSwipe}
-            onSwipeRight={handleSwipeRight}
-          >
-            <EventCard card={events[currentIndex]} />
-          </SwipeableCard>
+          events.slice(currentIndex).reverse().map((event) => (
+            <SwipeableCard
+              key={event._id}
+              onSwipeLeft={handleSwipe}
+              onSwipeRight={handleSwipeRight}
+            >
+              <EventCard card={event} />
+            </SwipeableCard>
+          ))
         ) : (
-          // If no cards are left, we show the empty state.
           <EmptyState title="No more events" subtitle="You've seen them all!" />
         )}
       </View>
@@ -91,7 +106,7 @@ function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#F7F8FA',
   },
   deckContainer: {
     flex: 1,
@@ -100,14 +115,15 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '90%',
-    height: '85%',
+    height: '90%',
     borderRadius: 20,
     backgroundColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
     elevation: 5,
+    position: 'absolute',
   },
   cardImage: {
     width: '100%',
@@ -126,13 +142,16 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Sk-Modernist-Bold',
     color: '#FFFFFF',
+    lineHeight: 30,
   },
   cardSubtitle: {
     fontSize: 16,
+    fontFamily: 'Sk-Modernist-Regular',
     color: '#FFFFFF',
     marginTop: 4,
+    lineHeight: 22,
   },
   emptyContainer: {
     flex: 1,
@@ -142,12 +161,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontFamily: 'Sk-Modernist-Bold',
+    color: '#2C2C2E',
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 16,
+    fontFamily: 'Sk-Modernist-Regular',
     color: '#8E8E93',
     marginTop: 8,
     textAlign: 'center',
