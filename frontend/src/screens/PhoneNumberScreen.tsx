@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { useOnboarding } from '../context/OnboardingContext';
 
-const PhoneNumberScreen = ({ navigation }: any) => {
+const PhoneNumberScreen = ({ route, navigation }: any) => {
+  const { flow } = route.params || {}; // Default to an empty object if params is undefined
   const [phoneNumber, setPhoneNumber] = useState('');
   const { updateOnboardingData } = useOnboarding();
 
@@ -29,8 +30,13 @@ const PhoneNumberScreen = ({ navigation }: any) => {
       const data = await response.json();
 
       if (response.ok) {
-        updateOnboardingData({ user: data.user, token: data.token });
-        navigation.navigate('OTP');
+        if (flow === 'signIn' && data.isNew) {
+          Alert.alert('Sign In Failed', 'No account with this number exists.');
+          navigation.navigate('Welcome');
+        } else {
+          updateOnboardingData({ user: data.user, token: data.token });
+          navigation.navigate('OTP', { flow });
+        }
       } else {
         Alert.alert('Error', data.message || 'Something went wrong');
       }

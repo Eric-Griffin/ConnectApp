@@ -25,7 +25,7 @@ const WelcomeScreen = ({ navigation }: any) => {
           <Text style={styles.primaryButtonText}>Create an account</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+        <TouchableOpacity onPress={() => navigation.navigate('PhoneNumber', { flow: 'signIn' })}>
           <Text style={styles.signInText}>
             Already have an account? <Text style={styles.signInLink}>Sign In</Text>
           </Text>

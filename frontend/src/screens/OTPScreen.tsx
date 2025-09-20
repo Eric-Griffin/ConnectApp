@@ -19,7 +19,8 @@ const OTPBox = ({ digit }: any) => (
   </View>
 );
 
-const OTPScreen = ({ navigation }: any) => {
+const OTPScreen = ({ route, navigation }: any) => {
+  const { flow } = route.params || {};
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(90);
 
@@ -47,13 +48,17 @@ const OTPScreen = ({ navigation }: any) => {
     }
   };
   
-  // THIS IS THE CORRECTED LOGIC
   useEffect(() => {
     if (otp.length === 4) {
-      // It now navigates to the correct first screen of the new flow.
-      navigation.navigate('OnboardingProfileDetails');
+      if (flow === 'signIn') {
+        // For sign-in, navigate directly to the main app
+        navigation.navigate('MainApp');
+      } else {
+        // For sign-up, continue the onboarding flow
+        navigation.navigate('OnboardingProfileDetails');
+      }
     }
-  }, [otp, navigation]);
+  }, [otp, navigation, flow]);
 
 
   const formattedTime = `${Math.floor(timer / 60)
