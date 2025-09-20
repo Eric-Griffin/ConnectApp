@@ -6,15 +6,19 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 const NotificationsScreen = ({ navigation }: any) => {
-  const handleAllow = () => {
+  const { submitOnboardingData } = useOnboarding();
+
+  const handleAllow = async () => {
     // In a real app, this would trigger the native permission pop-up.
-    // For now, we'll just navigate to the main app.
+    await submitOnboardingData();
     navigation.navigate('MainApp');
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
+    await submitOnboardingData();
     navigation.navigate('MainApp');
   };
 

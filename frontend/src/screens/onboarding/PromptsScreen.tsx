@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 const PROMPT_QUESTIONS = [
   "A random fact I love is...",
@@ -149,6 +150,7 @@ const PromptSlot = ({ prompt, onAdd }: { prompt: Prompt | null, onAdd: () => voi
 );
 
 const PromptsScreen = ({ navigation }: any) => {
+  const { updateOnboardingData } = useOnboarding();
   const [prompts, setPrompts] = useState<(Prompt | null)[]>([null, null, null]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
@@ -162,6 +164,12 @@ const PromptsScreen = ({ navigation }: any) => {
     const newPrompts = [...prompts];
     newPrompts[currentPromptIndex] = prompt;
     setPrompts(newPrompts);
+  };
+
+  const handleContinue = () => {
+    const filledPrompts = prompts.filter(p => p !== null) as Prompt[];
+    updateOnboardingData({ prompts: filledPrompts });
+    navigation.navigate('OnboardingPhotos');
   };
 
   const isNextDisabled = prompts.every(p => p === null);
@@ -192,7 +200,7 @@ const PromptsScreen = ({ navigation }: any) => {
         <TouchableOpacity
           style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
           disabled={isNextDisabled}
-          onPress={() => navigation.navigate('OnboardingPhotos')}
+          onPress={handleContinue}
         >
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>

@@ -8,6 +8,7 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 const PREDEFINED_INTERESTS = [
   'Photography', 'Shopping', 'Karaoke', 'Yoga', 'Cooking', 'Tennis',
@@ -29,6 +30,7 @@ const InterestPill = ({ text, isSelected, onPress }: any) => (
 );
 
 const InterestsScreen = ({ navigation }: any) => {
+  const { updateOnboardingData } = useOnboarding();
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [allInterests, setAllInterests] = useState<string[]>(PREDEFINED_INTERESTS);
@@ -49,6 +51,11 @@ const InterestsScreen = ({ navigation }: any) => {
       setSelectedInterests([...selectedInterests, searchTerm]);
       setSearchTerm('');
     }
+  };
+
+  const handleContinue = () => {
+    updateOnboardingData({ interestTags: selectedInterests });
+    navigation.navigate('OnboardingHabits');
   };
 
   const filteredInterests = useMemo(() => 
@@ -102,7 +109,7 @@ const InterestsScreen = ({ navigation }: any) => {
         <TouchableOpacity
           style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
           disabled={isNextDisabled}
-          onPress={() => navigation.navigate('OnboardingHabits')}
+          onPress={handleContinue}
         >
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>

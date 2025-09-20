@@ -18,8 +18,16 @@ router.get('/me', protect, async (req, res) => {
 // @route   PUT /api/users/me
 // @desc    Update user profile
 router.put('/me', protect, async (req, res) => {
-    const { name, age, height, bio, prompts, interestTags, photos } = req.body;
-    const profileFields = { name, age, height, bio, prompts, interestTags, photos };
+    const { name, birthday, gender, interestTags, habits, prompts, photos } = req.body;
+    const profileFields = {};
+    if (name) profileFields.name = name;
+    if (birthday) profileFields.birthday = birthday;
+    if (gender) profileFields.gender = gender;
+    if (interestTags) profileFields.interestTags = interestTags;
+    if (habits) profileFields.habits = habits;
+    if (prompts) profileFields.prompts = prompts;
+    if (photos) profileFields.photos = photos;
+
 
     try {
         let user = await User.findByIdAndUpdate(

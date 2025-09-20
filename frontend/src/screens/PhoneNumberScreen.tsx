@@ -6,12 +6,38 @@ import {
   TouchableOpacity,
   TextInput,
   SafeAreaView,
+  Alert,
 } from 'react-native';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 const PhoneNumberScreen = ({ navigation }: any) => {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const { updateOnboardingData } = useOnboarding();
 
   const isNextDisabled = phoneNumber.length < 10;
+
+  const handleContinue = async () => {
+    try {
+      const response = await fetch('http://10.0.2.2:5001/api/auth/register-phone', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phoneNumber: `+1${phoneNumber}` }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        updateOnboardingData({ user: data.user, token: data.token });
+        navigation.navigate('OTP');
+      } else {
+        Alert.alert('Error', data.message || 'Something went wrong');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Could not connect to the server');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,7 +72,7 @@ const PhoneNumberScreen = ({ navigation }: any) => {
         <TouchableOpacity
           style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
           disabled={isNextDisabled}
-          onPress={() => navigation.navigate('OTP')}
+          onPress={handleContinue}
         >
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>
