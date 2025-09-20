@@ -7,7 +7,11 @@ const User = require('../models/User');
 // @route   POST /api/auth/register
 // @desc    Register a new user
 router.post('/register', async (req, res) => {
-  const { name, email, password, age, height, bio, prompts, interestTags, photos } = req.body;
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Please enter all fields' });
+  }
 
   try {
     let user = await User.findOne({ email });
@@ -19,12 +23,6 @@ router.post('/register', async (req, res) => {
       name,
       email,
       password,
-      age,
-      height,
-      bio,
-      prompts,
-      interestTags,
-      photos
     });
 
     // Hash password
@@ -38,6 +36,38 @@ router.post('/register', async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
 
     res.status(201).json({ token, user });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   POST /api/auth/register-phone
+// @desc    Register a new user with phone number
+router.post('/register-phone', async (req, res) => {
+  const { phoneNumber } = req.body;
+
+  try {
+    let user = await User.findOne({ phoneNumber });
+    if (user) {
+      // If user exists, just log them in
+      const payload = { id: user.id };
+      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
+      return res.json({ token, user, isNew: false });
+    }
+
+    user = new User({
+      phoneNumber,
+    });
+
+    await user.save();
+
+    // Create JWT
+    const payload = { id: user.id };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
+
+    res.status(201).json({ token, user, isNew: true });
 
   } catch (err) {
     console.error(err.message);

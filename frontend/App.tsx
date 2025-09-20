@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AppProvider } from './src/context/AppContext';
+import { OnboardingProvider } from './src/context/OnboardingContext';
 
 // Import all screens
 import WelcomeScreen from './src/screens/WelcomeScreen';
@@ -67,10 +68,12 @@ function App(): React.JSX.Element {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppProvider>
-        <NavigationContainer>
-          <StatusBar barStyle={'dark-content'} />
-          <AppNavigator />
-        </NavigationContainer>
+        <OnboardingProvider>
+          <NavigationContainer>
+            <StatusBar barStyle={'dark-content'} />
+            <AppNavigator />
+          </NavigationContainer>
+        </OnboardingProvider>
       </AppProvider>
     </GestureHandlerRootView>
   );

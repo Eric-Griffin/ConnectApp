@@ -8,6 +8,7 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 const GENDER_OPTIONS = ['Woman', 'Man'];
 
@@ -22,6 +23,7 @@ const GenderOption = ({ text, isSelected, onPress }: any) => (
 );
 
 const GenderScreen = ({ navigation }: any) => {
+  const { updateOnboardingData } = useOnboarding();
   const [selectedGender, setSelectedGender] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [customGender, setCustomGender] = useState('');
@@ -35,6 +37,11 @@ const GenderScreen = ({ navigation }: any) => {
       setSelectedGender(customGender);
     }
     setModalVisible(false);
+  };
+
+  const handleContinue = () => {
+    updateOnboardingData({ gender: selectedGender });
+    navigation.navigate('OnboardingInterests');
   };
 
   const isNextDisabled = !selectedGender;
@@ -81,7 +88,7 @@ const GenderScreen = ({ navigation }: any) => {
         <TouchableOpacity
           style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
           disabled={isNextDisabled}
-          onPress={() => navigation.navigate('OnboardingInterests')}
+          onPress={handleContinue}
         >
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>

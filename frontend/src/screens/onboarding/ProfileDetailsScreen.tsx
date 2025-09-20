@@ -9,6 +9,7 @@ import {
   Modal,
   Button, // Using a simple button for the calendar
 } from 'react-native';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 // A simple placeholder for a calendar. We can replace this with a real library later.
 const BirthdayPickerModal = ({ visible, onClose, onSave }: any) => {
@@ -40,6 +41,7 @@ const BirthdayPickerModal = ({ visible, onClose, onSave }: any) => {
 
 
 const ProfileDetailsScreen = ({ navigation }: any) => {
+  const { updateOnboardingData } = useOnboarding();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [birthday, setBirthday] = useState('');
@@ -50,6 +52,11 @@ const ProfileDetailsScreen = ({ navigation }: any) => {
     // For now, we'll just set a placeholder.
     setBirthday('July 11, 1995');
     setPickerVisible(false);
+  };
+
+  const handleConfirm = () => {
+    updateOnboardingData({ name: `${firstName} ${lastName}`, birthday });
+    navigation.navigate('OnboardingGender');
   };
 
   const isNextDisabled = !firstName || !lastName || !birthday;
@@ -93,7 +100,7 @@ const ProfileDetailsScreen = ({ navigation }: any) => {
         <TouchableOpacity
           style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
           disabled={isNextDisabled}
-          onPress={() => navigation.navigate('OnboardingGender')} // We will create this screen next
+          onPress={handleConfirm}
         >
           <Text style={styles.primaryButtonText}>Confirm</Text>
         </TouchableOpacity>

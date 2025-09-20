@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 // This is a component for a single photo slot in the grid
 const PhotoSlot = ({ onAdd, image }: any) => (
@@ -20,6 +21,7 @@ const PhotoSlot = ({ onAdd, image }: any) => (
 );
 
 const PhotosScreen = ({ navigation }: any) => {
+  const { updateOnboardingData } = useOnboarding();
   // We use an array to keep track of the photos. For now, it just holds placeholders.
   const [photos, setPhotos] = useState<{ id: number }[]>([]);
 
@@ -29,6 +31,14 @@ const PhotosScreen = ({ navigation }: any) => {
       // For now, we just add a placeholder to the array.
       setPhotos([...photos, { id: photos.length + 1 }]);
     }
+  };
+
+  const handleContinue = () => {
+    // In a real app, you would upload the photos and get back URLs.
+    // For now, we'll just use placeholders.
+    const photoUrls = photos.map(p => `https://example.com/photo${p.id}.jpg`);
+    updateOnboardingData({ photos: photoUrls });
+    navigation.navigate('OnboardingNotifications');
   };
 
   const isNextDisabled = photos.length < 4;
@@ -62,7 +72,7 @@ const PhotosScreen = ({ navigation }: any) => {
         <TouchableOpacity
           style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
           disabled={isNextDisabled}
-          onPress={() => navigation.navigate('OnboardingNotifications')} // Navigate to the final notifications screen
+          onPress={handleContinue}
         >
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>

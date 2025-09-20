@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 const DRINKING_OPTIONS = ['Yes, I drink', 'I drink sometimes', 'I rarely drink', 'No, I don\'t drink', 'I\'m sober'];
 const SMOKING_OPTIONS = ['I smoke sometimes', 'No, I don\'t smoke', 'Yes, I smoke', 'I\'m trying to quit'];
@@ -40,9 +41,15 @@ const HabitSection = ({ title, options, selectedOption, onSelect }: any) => (
 );
 
 const HabitsScreen = ({ navigation }: any) => {
+  const { updateOnboardingData } = useOnboarding();
   const [drinking, setDrinking] = useState(null);
   const [smoking, setSmoking] = useState(null);
   const [workout, setWorkout] = useState(null);
+
+  const handleContinue = () => {
+    updateOnboardingData({ habits: { drinking, smoking, workout } });
+    navigation.navigate('OnboardingPrompts');
+  };
 
   const isNextDisabled = !drinking || !smoking || !workout;
 
@@ -88,7 +95,7 @@ const HabitsScreen = ({ navigation }: any) => {
         <TouchableOpacity
           style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
           disabled={isNextDisabled}
-          onPress={() => navigation.navigate('OnboardingPrompts')}
+          onPress={handleContinue}
         >
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>
