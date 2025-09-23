@@ -13,20 +13,21 @@ import {
   Platform,
 } from 'react-native';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { theme } from '../../theme';
 
 const PROMPT_QUESTIONS = [
-  "A random fact I love is...",
-  "The best concert I've ever been to was...",
-  "My go-to order at a brewery is...",
-  "I'm looking for someone to...",
-  "The most spontaneous thing I've ever done is...",
-  "Two truths and a lie...",
-  "My simple pleasures...",
-  "A social cause I care about is...",
-  "My favorite quality in a person is...",
-  "I'm weirdly good at...",
-  "My biggest dream is...",
-  "The key to my heart is...",
+  'A random fact I love is...',
+  'The best concert I\'ve ever been to was...',
+  'My go-to order at a brewery is...',
+  'I\'m looking for someone to...',
+  'The most spontaneous thing I\'ve ever done is...',
+  'Two truths and a lie...',
+  'My simple pleasures...',
+  'A social cause I care about is...',
+  'My favorite quality in a person is...',
+  'I\'m weirdly good at...',
+  'My biggest dream is...',
+  'The key to my heart is...',
 ];
 
 type Prompt = {
@@ -44,7 +45,7 @@ const PromptSelectorModal = ({ visible, onClose, onSave }: any) => {
     setSelectedQuestion(question);
     setStep(2);
   };
-  
+
   const handleCustomQuestion = () => {
     if (customQuestion) {
       setSelectedQuestion(customQuestion);
@@ -64,47 +65,56 @@ const PromptSelectorModal = ({ visible, onClose, onSave }: any) => {
   const resetAndClose = () => {
     setStep(1);
     onClose();
-  }
+  };
 
   return (
-    <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={resetAndClose}>
+    <Modal
+      animationType="slide"
+      transparent={false}
+      visible={visible}
+      onRequestClose={resetAndClose}>
       <SafeAreaView style={styles.modalContainer}>
         {step === 1 ? (
           <View style={styles.flexOne}>
             <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Choose a Prompt</Text>
-                <TouchableOpacity onPress={resetAndClose}><Text style={styles.cancelText}>Cancel</Text></TouchableOpacity>
+              <Text style={styles.modalTitle}>Choose a Prompt</Text>
+              <TouchableOpacity onPress={resetAndClose}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.customPromptContainer}>
-                <TextInput 
-                    style={styles.modalInputShort} 
-                    placeholder="Or write your own..."
-                    value={customQuestion}
-                    onChangeText={setCustomQuestion}
-                />
-                <TouchableOpacity 
-                  style={[styles.modalButton, !customQuestion && styles.disabledButton]} 
-                  onPress={handleCustomQuestion} 
-                  disabled={!customQuestion}
-                >
-                    <Text style={styles.primaryButtonText}>Use Custom Prompt</Text>
-                </TouchableOpacity>
+              <TextInput
+                style={styles.modalInputShort}
+                placeholder="Or write your own..."
+                value={customQuestion}
+                onChangeText={setCustomQuestion}
+              />
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  !customQuestion && styles.disabledButton,
+                ]}
+                onPress={handleCustomQuestion}
+                disabled={!customQuestion}>
+                <Text style={styles.primaryButtonText}>Use Custom Prompt</Text>
+              </TouchableOpacity>
             </View>
             <FlatList
               data={PROMPT_QUESTIONS}
-              keyExtractor={(item) => item}
+              keyExtractor={item => item}
               renderItem={({ item }) => (
-                <TouchableOpacity style={styles.promptListItem} onPress={() => handleSelectQuestion(item)}>
+                <TouchableOpacity
+                  style={styles.promptListItem}
+                  onPress={() => handleSelectQuestion(item)}>
                   <Text style={styles.promptListText}>{item}</Text>
                 </TouchableOpacity>
               )}
             />
           </View>
         ) : (
-          <KeyboardAvoidingView 
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.modalContent}
-          >
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.modalContent}>
             <Text style={styles.modalTitle}>{selectedQuestion}</Text>
             <TextInput
               style={styles.modalInput}
@@ -113,11 +123,10 @@ const PromptSelectorModal = ({ visible, onClose, onSave }: any) => {
               placeholder="Your answer..."
               multiline
             />
-            <TouchableOpacity 
-              style={[styles.modalButton, !answer && styles.disabledButton]} 
-              onPress={handleSave} 
-              disabled={!answer}
-            >
+            <TouchableOpacity
+              style={[styles.modalButton, !answer && styles.disabledButton]}
+              onPress={handleSave}
+              disabled={!answer}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setStep(1)}>
@@ -130,18 +139,23 @@ const PromptSelectorModal = ({ visible, onClose, onSave }: any) => {
   );
 };
 
-
-const PromptSlot = ({ prompt, onAdd }: { prompt: Prompt | null, onAdd: () => void }) => (
+const PromptSlot = ({
+  prompt,
+  onAdd,
+}: {
+  prompt: Prompt | null;
+  onAdd: () => void;
+}) => (
   <TouchableOpacity style={styles.slot} onPress={onAdd}>
     <View style={styles.promptTextContainer}>
-        {prompt ? (
-            <>
-                <Text style={styles.promptQuestion}>{prompt.question}</Text>
-                <Text style={styles.slotText}>{`"${prompt.answer}"`}</Text>
-            </>
-        ) : (
-            <Text style={styles.slotPlaceholder}>Add a prompt</Text>
-        )}
+      {prompt ? (
+        <>
+          <Text style={styles.promptQuestion}>{prompt.question}</Text>
+          <Text style={styles.slotText}>{`"${prompt.answer}"`}</Text>
+        </>
+      ) : (
+        <Text style={styles.slotPlaceholder}>Add a prompt</Text>
+      )}
     </View>
     <View style={styles.addButton}>
       <Text style={styles.addButtonText}>{prompt ? 'Edit' : 'Add'}</Text>
@@ -176,7 +190,7 @@ const PromptsScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-       <View style={styles.header}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <View style={styles.backButtonCircle}>
             <Text style={styles.backButton}>‹</Text>
@@ -185,28 +199,35 @@ const PromptsScreen = ({ navigation }: any) => {
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>What makes you, you?</Text>
-        <Text style={styles.subtitle}>Add at least one prompt to give a sense of who you are.</Text>
-        
+        <Text style={styles.subtitle}>
+          Add at least one prompt to give a sense of who you are.
+        </Text>
+
         <PromptSlot prompt={prompts[0]} onAdd={() => handleOpenModal(0)} />
         <PromptSlot prompt={prompts[1]} onAdd={() => handleOpenModal(1)} />
         <PromptSlot prompt={prompts[2]} onAdd={() => handleOpenModal(2)} />
 
         <View style={styles.infoBox}>
-          <Text style={styles.infoBoxText}>💡 More prompts, more matches. Adding prompts can double your chances of matching.</Text>
+          <Text style={styles.infoBoxText}>
+            💡 More prompts, more matches. Adding prompts can double your
+            chances of matching.
+          </Text>
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
+          style={[
+            styles.primaryButton,
+            isNextDisabled && styles.disabledButton,
+          ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}
-        >
+          onPress={handleContinue}>
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
 
-      <PromptSelectorModal 
+      <PromptSelectorModal
         visible={isModalVisible}
         onClose={() => setModalVisible(false)}
         onSave={handleSavePrompt}
@@ -218,7 +239,7 @@ const PromptsScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
   },
   flexOne: {
     flex: 1,
@@ -231,13 +252,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButton: {
     fontSize: 24,
-    color: '#000000',
+    color: theme.colors.black,
   },
   content: {
     padding: 24,
@@ -245,20 +266,20 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 8,
     lineHeight: 40,
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
     marginBottom: 30,
     lineHeight: 22,
   },
   slot: {
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     padding: 20,
     marginBottom: 15,
@@ -274,40 +295,40 @@ const styles = StyleSheet.create({
   },
   promptQuestion: {
     fontSize: 14,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 4,
   },
   slotText: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
+    fontFamily: theme.fonts.regular,
     color: '#3C3C43',
     fontStyle: 'italic',
   },
   slotPlaceholder: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
   },
   addButton: {
-    backgroundColor: '#A8D1E7', // Corrected button color
+    backgroundColor: theme.colors.primary,
     borderRadius: 20,
     paddingVertical: 8,
     paddingHorizontal: 15,
   },
   addButtonText: {
-    color: '#FFFFFF',
-    fontFamily: 'Sk-Modernist-Bold',
+    color: theme.colors.white,
+    fontFamily: theme.fonts.bold,
   },
   infoBox: {
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     padding: 15,
     marginTop: 20,
   },
   infoBoxText: {
     fontSize: 14,
-    fontFamily: 'Sk-Modernist-Regular',
+    fontFamily: theme.fonts.regular,
     color: '#6C6C70',
     textAlign: 'center',
     lineHeight: 20,
@@ -318,23 +339,23 @@ const styles = StyleSheet.create({
     borderTopColor: '#EFEFEF',
   },
   primaryButton: {
-    backgroundColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
     padding: 18,
     borderRadius: 12,
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Bold',
+    fontFamily: theme.fonts.bold,
   },
   disabledButton: {
-    backgroundColor: '#DCEBFF',
+    backgroundColor: theme.colors.primary,
+    opacity: 0.5,
   },
-  // Modal Styles
   modalContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -353,7 +374,7 @@ const styles = StyleSheet.create({
     color: '#2C2C2E',
   },
   modalInput: {
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     padding: 18,
     fontSize: 16,
@@ -366,7 +387,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   modalInputShort: {
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     padding: 18,
     fontSize: 16,
@@ -376,7 +397,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   modalButton: {
-    backgroundColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
     padding: 18,
     borderRadius: 12,
     alignItems: 'center',
@@ -384,7 +405,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     marginTop: 15,
-    color: '#8A8A8E',
+    color: theme.colors.gray,
     fontSize: 16,
     textAlign: 'center',
   },
@@ -400,14 +421,14 @@ const styles = StyleSheet.create({
   },
   promptListText: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
+    fontFamily: theme.fonts.regular,
   },
   skipText: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
   },
 });
 

@@ -7,13 +7,12 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { theme } from '../../theme';
 
-// This is a component for a single photo slot in the grid
 const PhotoSlot = ({ onAdd, image }: any) => (
   <TouchableOpacity style={styles.slot} onPress={onAdd}>
-    {/* If there's an image, we'll show it. Otherwise, show a plus icon. */}
     {image ? (
-      <Text>Image Placeholder</Text> // In a real app, this would be an <Image> component
+      <Text>Image Placeholder</Text>
     ) : (
       <Text style={styles.plusIcon}>+</Text>
     )}
@@ -22,20 +21,15 @@ const PhotoSlot = ({ onAdd, image }: any) => (
 
 const PhotosScreen = ({ navigation }: any) => {
   const { updateOnboardingData } = useOnboarding();
-  // We use an array to keep track of the photos. For now, it just holds placeholders.
   const [photos, setPhotos] = useState<{ id: number }[]>([]);
 
   const handleAddPhoto = () => {
     if (photos.length < 6) {
-      // In a real app, this would open the image library.
-      // For now, we just add a placeholder to the array.
       setPhotos([...photos, { id: photos.length + 1 }]);
     }
   };
 
   const handleContinue = () => {
-    // In a real app, you would upload the photos and get back URLs.
-    // For now, we'll just use placeholders.
     const photoUrls = photos.map(p => `https://example.com/photo${p.id}.jpg`);
     updateOnboardingData({ photos: photoUrls });
     navigation.navigate('OnboardingNotifications');
@@ -45,7 +39,7 @@ const PhotosScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-       <View style={styles.header}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <View style={styles.backButtonCircle}>
             <Text style={styles.backButton}>‹</Text>
@@ -55,9 +49,8 @@ const PhotosScreen = ({ navigation }: any) => {
       <View style={styles.content}>
         <Text style={styles.title}>Time to put a face to the name</Text>
         <Text style={styles.subtitle}>Add at least 4 photos to continue.</Text>
-        
+
         <View style={styles.photoGrid}>
-          {/* We create 6 slots and fill them based on the photos array */}
           {[...Array(6)].map((_, index) => (
             <PhotoSlot
               key={index}
@@ -70,10 +63,12 @@ const PhotosScreen = ({ navigation }: any) => {
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
+          style={[
+            styles.primaryButton,
+            isNextDisabled && styles.disabledButton,
+          ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}
-        >
+          onPress={handleContinue}>
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
@@ -84,9 +79,9 @@ const PhotosScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
   },
-   header: {
+  header: {
     padding: 20,
     alignItems: 'flex-start',
   },
@@ -94,13 +89,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButton: {
     fontSize: 24,
-    color: '#000000',
+    color: theme.colors.black,
   },
   content: {
     flex: 1,
@@ -109,15 +104,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 8,
     lineHeight: 40,
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
     marginBottom: 30,
     lineHeight: 22,
   },
@@ -128,8 +123,8 @@ const styles = StyleSheet.create({
   },
   slot: {
     width: '30%',
-    aspectRatio: 1, // Creates a square
-    backgroundColor: '#F7F8FA',
+    aspectRatio: 1,
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -147,18 +142,19 @@ const styles = StyleSheet.create({
     borderTopColor: '#EFEFEF',
   },
   primaryButton: {
-    backgroundColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
     padding: 18,
     borderRadius: 12,
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Bold',
+    fontFamily: theme.fonts.bold,
   },
   disabledButton: {
-    backgroundColor: '#DCEBFF',
+    backgroundColor: theme.colors.primary,
+    opacity: 0.5,
   },
 });
 

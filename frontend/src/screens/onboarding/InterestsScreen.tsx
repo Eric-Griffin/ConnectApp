@@ -9,22 +9,33 @@ import {
   TextInput,
 } from 'react-native';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { theme } from '../../theme';
 
 const PREDEFINED_INTERESTS = [
-  'Photography', 'Shopping', 'Karaoke', 'Yoga', 'Cooking', 'Tennis',
-  'Run', 'Swimming', 'Art', 'Traveling', 'Extreme', 'Music',
-  'Drink', 'Video games'
+  'Photography',
+  'Shopping',
+  'Karaoke',
+  'Yoga',
+  'Cooking',
+  'Tennis',
+  'Run',
+  'Swimming',
+  'Art',
+  'Traveling',
+  'Extreme',
+  'Music',
+  'Drink',
+  'Video games',
 ];
 
-// THIS IS THE CORRECTED COMPONENT
 const InterestPill = ({ text, isSelected, onPress }: any) => (
-  <TouchableOpacity 
+  <TouchableOpacity
     style={[styles.pill, isSelected && styles.selectedPill]}
-    onPress={onPress}
-  >
-    {/* By wrapping the Text in a View, we ensure it has proper spacing */}
+    onPress={onPress}>
     <View>
-      <Text style={[styles.pillText, isSelected && styles.selectedPillText]}>{text}</Text>
+      <Text style={[styles.pillText, isSelected && styles.selectedPillText]}>
+        {text}
+      </Text>
     </View>
   </TouchableOpacity>
 );
@@ -33,18 +44,25 @@ const InterestsScreen = ({ navigation }: any) => {
   const { updateOnboardingData } = useOnboarding();
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [allInterests, setAllInterests] = useState<string[]>(PREDEFINED_INTERESTS);
+  const [allInterests, setAllInterests] =
+    useState<string[]>(PREDEFINED_INTERESTS);
 
   const handleSelectInterest = (interest: string) => {
     if (selectedInterests.includes(interest)) {
-      setSelectedInterests(selectedInterests.filter(item => item !== interest));
+      setSelectedInterests(
+        selectedInterests.filter(item => item !== interest),
+      );
     } else if (selectedInterests.length < 5) {
       setSelectedInterests([...selectedInterests, interest]);
     }
   };
-  
+
   const addCustomInterest = () => {
-    if (searchTerm && !selectedInterests.includes(searchTerm) && selectedInterests.length < 5) {
+    if (
+      searchTerm &&
+      !selectedInterests.includes(searchTerm) &&
+      selectedInterests.length < 5
+    ) {
       if (!allInterests.includes(searchTerm)) {
         setAllInterests([searchTerm, ...allInterests]);
       }
@@ -58,26 +76,32 @@ const InterestsScreen = ({ navigation }: any) => {
     navigation.navigate('OnboardingHabits');
   };
 
-  const filteredInterests = useMemo(() => 
-    allInterests.filter(interest => 
-      interest.toLowerCase().includes(searchTerm.toLowerCase())
-    ), [searchTerm, allInterests]);
+  const filteredInterests = useMemo(
+    () =>
+      allInterests.filter(interest =>
+        interest.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    [searchTerm, allInterests],
+  );
 
   const isNextDisabled = selectedInterests.length < 1;
 
   return (
     <SafeAreaView style={styles.container}>
-       <View style={styles.header}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <View style={styles.backButtonCircle}>
             <Text style={styles.backButton}>‹</Text>
           </View>
         </TouchableOpacity>
       </View>
-      
+
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Your interests</Text>
-        <Text style={styles.subtitle}>Select a few of your interests and let everyone know what you're passionate about.</Text>
+        <Text style={styles.subtitle}>
+          Select a few of your interests and let everyone know what you're
+          passionate about.
+        </Text>
 
         <View style={styles.searchContainer}>
           <TextInput
@@ -86,13 +110,18 @@ const InterestsScreen = ({ navigation }: any) => {
             value={searchTerm}
             onChangeText={setSearchTerm}
           />
-          {searchTerm && !allInterests.map(i => i.toLowerCase()).includes(searchTerm.toLowerCase()) && (
-            <TouchableOpacity style={styles.addButton} onPress={addCustomInterest}>
-              <Text style={styles.addButtonText}>Add</Text>
-            </TouchableOpacity>
-          )}
+          {searchTerm &&
+            !allInterests
+              .map(i => i.toLowerCase())
+              .includes(searchTerm.toLowerCase()) && (
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={addCustomInterest}>
+                <Text style={styles.addButtonText}>Add</Text>
+              </TouchableOpacity>
+            )}
         </View>
-        
+
         <View style={styles.pillsContainer}>
           {filteredInterests.map(interest => (
             <InterestPill
@@ -107,13 +136,16 @@ const InterestsScreen = ({ navigation }: any) => {
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
+          style={[
+            styles.primaryButton,
+            isNextDisabled && styles.disabledButton,
+          ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}
-        >
+          onPress={handleContinue}>
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('OnboardingHabits')}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('OnboardingHabits')}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
       </View>
@@ -124,7 +156,7 @@ const InterestsScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
   },
   header: {
     padding: 20,
@@ -134,29 +166,29 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButton: {
     fontSize: 24,
-    color: '#000000',
+    color: theme.colors.black,
   },
   content: {
     paddingHorizontal: 24,
-    paddingBottom: 100, 
+    paddingBottom: 100,
   },
   title: {
     fontSize: 32,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 8,
     lineHeight: 40,
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -167,23 +199,23 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     padding: 18,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#000000',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.black,
   },
   addButton: {
     marginLeft: 10,
-    backgroundColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderRadius: 12,
   },
   addButtonText: {
-    color: '#FFFFFF',
-    fontFamily: 'Sk-Modernist-Bold',
+    color: theme.colors.white,
+    fontFamily: theme.fonts.bold,
     fontSize: 16,
   },
   pillsContainer: {
@@ -191,7 +223,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   pill: {
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -200,16 +232,16 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   selectedPill: {
-    backgroundColor: '#A8D1E7',
-    borderColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   pillText: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#000000',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.black,
   },
   selectedPillText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
   },
   footer: {
     padding: 24,
@@ -217,25 +249,26 @@ const styles = StyleSheet.create({
     borderTopColor: '#EFEFEF',
   },
   primaryButton: {
-    backgroundColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
     padding: 18,
     borderRadius: 12,
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Bold',
+    fontFamily: theme.fonts.bold,
   },
   disabledButton: {
-    backgroundColor: '#DCEBFF',
+    backgroundColor: theme.colors.primary,
+    opacity: 0.5,
   },
   skipText: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
   },
 });
 

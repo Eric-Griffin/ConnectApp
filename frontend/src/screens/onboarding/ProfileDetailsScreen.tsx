@@ -7,23 +7,20 @@ import {
   TextInput,
   SafeAreaView,
   Modal,
-  Button, // Using a simple button for the calendar
 } from 'react-native';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { theme } from '../../theme';
 
-// A simple placeholder for a calendar. We can replace this with a real library later.
 const BirthdayPickerModal = ({ visible, onClose, onSave }: any) => {
   return (
     <Modal
       animationType="slide"
       transparent={true}
       visible={visible}
-      onRequestClose={onClose}
-    >
+      onRequestClose={onClose}>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Select Birthday</Text>
-          {/* This is a placeholder for a real calendar component */}
           <View style={styles.calendarPlaceholder}>
             <Text>A real calendar would go here.</Text>
           </View>
@@ -39,7 +36,6 @@ const BirthdayPickerModal = ({ visible, onClose, onSave }: any) => {
   );
 };
 
-
 const ProfileDetailsScreen = ({ navigation }: any) => {
   const { updateOnboardingData } = useOnboarding();
   const [firstName, setFirstName] = useState('');
@@ -48,8 +44,6 @@ const ProfileDetailsScreen = ({ navigation }: any) => {
   const [isPickerVisible, setPickerVisible] = useState(false);
 
   const handleSaveBirthday = () => {
-    // In a real app, you'd get the date from the calendar.
-    // For now, we'll just set a placeholder.
     setBirthday('July 11, 1995');
     setPickerVisible(false);
   };
@@ -70,7 +64,7 @@ const ProfileDetailsScreen = ({ navigation }: any) => {
           </View>
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.content}>
         <Text style={styles.title}>Profile details</Text>
 
@@ -87,10 +81,9 @@ const ProfileDetailsScreen = ({ navigation }: any) => {
           onChangeText={setLastName}
         />
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.birthdayButton}
-          onPress={() => setPickerVisible(true)}
-        >
+          onPress={() => setPickerVisible(true)}>
           <Text style={styles.birthdayButtonIcon}>🗓️</Text>
           <Text style={styles.birthdayButtonText}>
             {birthday || 'Choose birthday date'}
@@ -98,18 +91,21 @@ const ProfileDetailsScreen = ({ navigation }: any) => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
+          style={[
+            styles.primaryButton,
+            isNextDisabled && styles.disabledButton,
+          ]}
           disabled={isNextDisabled}
-          onPress={handleConfirm}
-        >
+          onPress={handleConfirm}>
           <Text style={styles.primaryButtonText}>Confirm</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('OnboardingGender')}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('OnboardingGender')}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
       </View>
 
-      <BirthdayPickerModal 
+      <BirthdayPickerModal
         visible={isPickerVisible}
         onClose={() => setPickerVisible(false)}
         onSave={handleSaveBirthday}
@@ -121,7 +117,7 @@ const ProfileDetailsScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
   },
   header: {
     padding: 20,
@@ -131,13 +127,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButton: {
     fontSize: 24,
-    color: '#000000',
+    color: theme.colors.black,
   },
   content: {
     flex: 1,
@@ -145,23 +141,23 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 30,
     lineHeight: 40,
   },
   input: {
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     padding: 18,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
+    fontFamily: theme.fonts.regular,
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#E0E0E0',
   },
   birthdayButton: {
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     padding: 18,
     borderWidth: 1,
@@ -175,39 +171,39 @@ const styles = StyleSheet.create({
   },
   birthdayButtonText: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
   },
   primaryButton: {
-    backgroundColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
     padding: 18,
     borderRadius: 12,
     alignItems: 'center',
-    marginTop: 'auto', // Pushes this to the bottom
+    marginTop: 'auto',
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Bold',
+    fontFamily: theme.fonts.bold,
   },
   disabledButton: {
-    backgroundColor: '#DCEBFF',
+    backgroundColor: theme.colors.primary,
+    opacity: 0.5,
   },
   skipText: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
   },
-  // Modal Styles
   modalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -223,7 +219,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 10,
     marginBottom: 20,
   },

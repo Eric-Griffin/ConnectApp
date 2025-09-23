@@ -8,18 +8,36 @@ import {
   ScrollView,
 } from 'react-native';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { theme } from '../../theme';
 
-const DRINKING_OPTIONS = ['Yes, I drink', 'I drink sometimes', 'I rarely drink', 'No, I don\'t drink', 'I\'m sober'];
-const SMOKING_OPTIONS = ['I smoke sometimes', 'No, I don\'t smoke', 'Yes, I smoke', 'I\'m trying to quit'];
-const WORKOUT_OPTIONS = ['Every day', 'A few times a week', 'Occasionally', 'Never'];
+const DRINKING_OPTIONS = [
+  'Yes, I drink',
+  'I drink sometimes',
+  'I rarely drink',
+  'No, I don\'t drink',
+  'I\'m sober',
+];
+const SMOKING_OPTIONS = [
+  'I smoke sometimes',
+  'No, I don\'t smoke',
+  'Yes, I smoke',
+  'I\'m trying to quit',
+];
+const WORKOUT_OPTIONS = [
+  'Every day',
+  'A few times a week',
+  'Occasionally',
+  'Never',
+];
 
 const HabitPill = ({ text, isSelected, onPress }: any) => (
-  <TouchableOpacity 
+  <TouchableOpacity
     style={[styles.pill, isSelected && styles.selectedPill]}
-    onPress={onPress}
-  >
+    onPress={onPress}>
     <View>
-      <Text style={[styles.pillText, isSelected && styles.selectedPillText]}>{text}</Text>
+      <Text style={[styles.pillText, isSelected && styles.selectedPillText]}>
+        {text}
+      </Text>
     </View>
   </TouchableOpacity>
 );
@@ -64,23 +82,26 @@ const HabitsScreen = ({ navigation }: any) => {
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Your lifestyle</Text>
-        <Text style={styles.subtitle}>Share as much as you're comfortable with. This helps us find better connections for you.</Text>
-        
-        <HabitSection 
+        <Text style={styles.subtitle}>
+          Share as much as you're comfortable with. This helps us find better
+          connections for you.
+        </Text>
+
+        <HabitSection
           title="Drinking"
           options={DRINKING_OPTIONS}
           selectedOption={drinking}
           onSelect={setDrinking}
         />
 
-        <HabitSection 
+        <HabitSection
           title="Smoking"
           options={SMOKING_OPTIONS}
           selectedOption={smoking}
           onSelect={setSmoking}
         />
-        
-        <HabitSection 
+
+        <HabitSection
           title="Workout"
           options={WORKOUT_OPTIONS}
           selectedOption={workout}
@@ -89,14 +110,17 @@ const HabitsScreen = ({ navigation }: any) => {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity onPress={() => navigation.navigate('OnboardingPrompts')}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('OnboardingPrompts')}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
+          style={[
+            styles.primaryButton,
+            isNextDisabled && styles.disabledButton,
+          ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}
-        >
+          onPress={handleContinue}>
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
@@ -107,7 +131,7 @@ const HabitsScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
   },
   header: {
     padding: 20,
@@ -117,13 +141,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButton: {
     fontSize: 24,
-    color: '#000000',
+    color: theme.colors.black,
   },
   content: {
     padding: 24,
@@ -131,15 +155,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 8,
     lineHeight: 40,
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
     marginBottom: 30,
     lineHeight: 22,
   },
@@ -148,8 +172,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 15,
   },
   pillsContainer: {
@@ -157,7 +181,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   pill: {
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -166,16 +190,16 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   selectedPill: {
-    backgroundColor: '#A8D1E7',
-    borderColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   pillText: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#000000',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.black,
   },
   selectedPillText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
   },
   footer: {
     padding: 24,
@@ -187,22 +211,23 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
   },
   primaryButton: {
-    backgroundColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
     padding: 18,
     borderRadius: 12,
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Bold',
+    fontFamily: theme.fonts.bold,
   },
   disabledButton: {
-    backgroundColor: '#DCEBFF',
+    backgroundColor: theme.colors.primary,
+    opacity: 0.5,
   },
 });
 

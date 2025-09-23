@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useOnboarding } from '../context/OnboardingContext';
+import { theme } from '../theme';
 
 const PhoneNumberScreen = ({ route, navigation }: any) => {
   const { flow } = route.params || {}; // Default to an empty object if params is undefined
@@ -19,13 +20,16 @@ const PhoneNumberScreen = ({ route, navigation }: any) => {
 
   const handleContinue = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:5001/api/auth/register-phone', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://10.0.2.2:5001/api/auth/register-phone',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ phoneNumber: `+1${phoneNumber}` }),
         },
-        body: JSON.stringify({ phoneNumber: `+1${phoneNumber}` }),
-      });
+      );
 
       const data = await response.json();
 
@@ -52,13 +56,14 @@ const PhoneNumberScreen = ({ route, navigation }: any) => {
           <Text style={styles.backButton}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Number</Text>
-        <View style={{width: 20}} />
+        <View style={{ width: 20 }} />
       </View>
 
       <View style={styles.content}>
         <Text style={styles.title}>My mobile</Text>
         <Text style={styles.subtitle}>
-          Please enter your valid phone number. We will send you a 4-digit code to verify your account.
+          Please enter your valid phone number. We will send you a 4-digit code
+          to verify your account.
         </Text>
 
         <View style={styles.phoneInputContainer}>
@@ -76,10 +81,12 @@ const PhoneNumberScreen = ({ route, navigation }: any) => {
         </View>
 
         <TouchableOpacity
-          style={[styles.primaryButton, isNextDisabled && styles.disabledButton]}
+          style={[
+            styles.primaryButton,
+            isNextDisabled && styles.disabledButton,
+          ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}
-        >
+          onPress={handleContinue}>
           <Text style={styles.primaryButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
@@ -90,24 +97,24 @@ const PhoneNumberScreen = ({ route, navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
   },
   backButton: {
     fontSize: 30,
-    color: '#000000',
-    fontFamily: 'Sk-Modernist-Regular',
+    color: theme.colors.black,
+    fontFamily: theme.fonts.regular,
   },
   headerTitle: {
     fontSize: 18,
-    color: '#8E8E93',
-    fontFamily: 'Sk-Modernist-Regular',
+    color: theme.colors.gray,
+    fontFamily: theme.fonts.regular,
     lineHeight: 24,
   },
   content: {
@@ -117,22 +124,22 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 8,
     lineHeight: 40,
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
     marginBottom: 40,
     lineHeight: 22,
   },
   phoneInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -145,7 +152,7 @@ const styles = StyleSheet.create({
   },
   countryCodeText: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
+    fontFamily: theme.fonts.regular,
     marginRight: 5,
   },
   dropdownArrow: {
@@ -155,23 +162,24 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 18,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#000000',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.black,
   },
   primaryButton: {
-    backgroundColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
     padding: 18,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 30,
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Bold',
+    fontFamily: theme.fonts.bold,
   },
   disabledButton: {
-    backgroundColor: '#DCEBFF',
+    backgroundColor: theme.colors.primary,
+    opacity: 0.5,
   },
 });
 
