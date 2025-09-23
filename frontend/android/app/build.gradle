@@ -1,13 +1,65 @@
-// ... other apply plugin lines
+apply plugin: "com.android.application"
+apply plugin: "com.facebook.react"
+apply plugin: "org.jetbrains.kotlin.android"
+apply plugin: "expo-modules-core"
+
+react {
+    /*
+     * Set this to `true` to create four separate APKs instead of one,
+     * one for each native architecture. This is useful if you don't want to
+     * use App Bundles (https://developer.android.com/guide/app-bundle/)
+     * and want to have separate APKs for different CPU architectures.
+     */
+    enableSeparateBuildPerCPUArchitecture = false
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
-
-    // Add this line
+    
+    // This is the namespace we added.
     namespace "com.connectapp"
-
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
+        // This is the application ID (package name).
         applicationId "com.connectapp"
         minSdkVersion rootProject.ext.minSdkVersion
-        // ... rest of the file
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+}
+
+dependencies {
+    // The version of Flipper is defined by the REACT_NATIVE_FLIPPER_VERSION environment variable.
+    // We use the default value unless the user specifies a different version.
+    def flipperVersion = System.env.REACT_NATIVE_FLIPPER_VERSION ?: "0.202.1"
+    implementation "com.facebook.flipper:flipper:${flipperVersion}"
+    implementation "com.facebook.flipper:flipper-network-plugin:${flipperVersion}"
+
+    implementation("com.facebook.react:react-android")
+    
+    if (hermesEnabled.toBoolean()) {
+        implementation("com.facebook.react:hermes-android")
+    } else {
+        implementation jscFlavor
+    }
+}
