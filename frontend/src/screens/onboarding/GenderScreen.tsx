@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,6 +8,8 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { useApp } from '../../context/AppContext';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { theme } from '../../theme';
 
@@ -23,10 +25,22 @@ const GenderOption = ({ text, isSelected, onPress }: any) => (
 );
 
 const GenderScreen = ({ navigation }: any) => {
-  const { updateOnboardingData } = useOnboarding();
+  const route = useRoute();
+  const { isEditMode } = route.params || {};
+  const { user, updateUser } = useApp();
+  const { onboardingData, updateOnboardingData } = useOnboarding();
+
   const [selectedGender, setSelectedGender] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [customGender, setCustomGender] = useState('');
+
+  useEffect(() => {
+    if (isEditMode && user) {
+      setSelectedGender(user.gender || '');
+    } else if (onboardingData) {
+      setSelectedGender(onboardingData.gender || '');
+    }
+  }, [isEditMode, user, onboardingData]);
 
   const handleSelect = (gender: string) => {
     setSelectedGender(gender);
@@ -39,9 +53,14 @@ const GenderScreen = ({ navigation }: any) => {
     setModalVisible(false);
   };
 
-  const handleContinue = () => {
-    updateOnboardingData({ gender: selectedGender });
-    navigation.navigate('OnboardingInterests');
+  const handleSave = async () => {
+    if (isEditMode) {
+      await updateUser({ gender: selectedGender });
+      navigation.goBack();
+    } else {
+      updateOnboardingData({ gender: selectedGender });
+      navigation.navigate('Interests');
+    }
   };
 
   const isNextDisabled = !selectedGender;
@@ -57,7 +76,7 @@ const GenderScreen = ({ navigation }: any) => {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>I am a</Text>
+        <Text style={styles.title}>{isEditMode ? 'Edit Your Gender' : 'I am a'}</Text>
 
         {GENDER_OPTIONS.map(option => (
           <GenderOption
@@ -89,13 +108,15 @@ const GenderScreen = ({ navigation }: any) => {
             isNextDisabled && styles.disabledButton,
           ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}>
-          <Text style={styles.primaryButtonText}>Continue</Text>
+          onPress={handleSave}>
+          <Text style={styles.primaryButtonText}>{isEditMode ? 'Save' : 'Continue'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('OnboardingInterests')}>
-          <Text style={styles.skipText}>Skip</Text>
-        </TouchableOpacity>
+        {!isEditMode && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Interests')}>
+            <Text style={styles.skipText}>Skip</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <Modal
@@ -246,6 +267,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-});
-
-export default GenderScreen;

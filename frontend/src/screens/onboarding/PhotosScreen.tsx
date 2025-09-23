@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   SafeAreaView,
+  Image,
+  Alert,
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { useApp } from '../../context/AppContext';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { theme } from '../../theme';
+import * as ImagePicker from 'expo-image-picker';
 
-const PhotoSlot = ({ onAdd, image }: any) => (
-  <TouchableOpacity style={styles.slot} onPress={onAdd}>
+const PhotoSlot = ({ image, onAdd, onRemove }) => (
+  <TouchableOpacity style={styles.slot} onPress={image ? onRemove : onAdd}>
     {image ? (
-      <Text>Image Placeholder</Text>
+      <Image source={{ uri: image }} style={styles.image} />
     ) : (
       <Text style={styles.plusIcon}>+</Text>
     )}
@@ -20,22 +25,51 @@ const PhotoSlot = ({ onAdd, image }: any) => (
 );
 
 const PhotosScreen = ({ navigation }: any) => {
-  const { updateOnboardingData } = useOnboarding();
-  const [photos, setPhotos] = useState<{ id: number }[]>([]);
+  const route = useRoute();
+  const { isEditMode } = route.params || {};
+  const { user, updateUser } = useApp();
+  const { onboardingData, updateOnboardingData } = useOnboarding();
 
-  const handleAddPhoto = () => {
-    if (photos.length < 6) {
-      setPhotos([...photos, { id: photos.length + 1 }]);
+  const [photos, setPhotos] = useState([]);
+
+  useEffect(() => {
+    if (isEditMode && user) {
+      setPhotos(user.photos || []);
+    } else if (onboardingData) {
+      setPhotos(onboardingData.photos || []);
+    }
+  }, [isEditMode, user, onboardingData]);
+
+  const handleAddPhoto = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setPhotos([...photos, result.assets[0].uri]);
     }
   };
 
-  const handleContinue = () => {
-    const photoUrls = photos.map(p => `https://example.com/photo${p.id}.jpg`);
-    updateOnboardingData({ photos: photoUrls });
-    navigation.navigate('OnboardingNotifications');
+  const handleRemovePhoto = (index) => {
+    const newPhotos = [...photos];
+    newPhotos.splice(index, 1);
+    setPhotos(newPhotos);
   };
 
-  const isNextDisabled = photos.length < 4;
+  const handleSave = async () => {
+    if (isEditMode) {
+      await updateUser({ photos });
+      navigation.goBack();
+    } else {
+      updateOnboardingData({ photos });
+      navigation.navigate('Notifications');
+    }
+  };
+
+  const isNextDisabled = photos.length < 1;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,8 +81,8 @@ const PhotosScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
       <View style={styles.content}>
-        <Text style={styles.title}>Time to put a face to the name</Text>
-        <Text style={styles.subtitle}>Add at least 4 photos to continue.</Text>
+        <Text style={styles.title}>{isEditMode ? 'Edit Your Photos' : 'Time to put a face to the name'}</Text>
+        <Text style={styles.subtitle}>Add at least 1 photo to continue.</Text>
 
         <View style={styles.photoGrid}>
           {[...Array(6)].map((_, index) => (
@@ -56,6 +90,7 @@ const PhotosScreen = ({ navigation }: any) => {
               key={index}
               image={photos[index]}
               onAdd={handleAddPhoto}
+              onRemove={() => handleRemovePhoto(index)}
             />
           ))}
         </View>
@@ -68,8 +103,8 @@ const PhotosScreen = ({ navigation }: any) => {
             isNextDisabled && styles.disabledButton,
           ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}>
-          <Text style={styles.primaryButtonText}>Continue</Text>
+          onPress={handleSave}>
+          <Text style={styles.primaryButtonText}>{isEditMode ? 'Save' : 'Continue'}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -131,6 +166,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: '#E0E0E0',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
   },
   plusIcon: {
     fontSize: 40,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,6 +12,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { useApp } from '../../context/AppContext';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { theme } from '../../theme';
 
@@ -35,11 +37,19 @@ type Prompt = {
   answer: string;
 };
 
-const PromptSelectorModal = ({ visible, onClose, onSave }: any) => {
+const PromptSelectorModal = ({ visible, onClose, onSave, existingPrompt }: any) => {
   const [step, setStep] = useState(1);
   const [selectedQuestion, setSelectedQuestion] = useState('');
   const [customQuestion, setCustomQuestion] = useState('');
   const [answer, setAnswer] = useState('');
+
+  useEffect(() => {
+    if (existingPrompt) {
+      setSelectedQuestion(existingPrompt.question);
+      setAnswer(existingPrompt.answer);
+      setStep(2);
+    }
+  }, [existingPrompt]);
 
   const handleSelectQuestion = (question: string) => {
     setSelectedQuestion(question);
@@ -55,15 +65,14 @@ const PromptSelectorModal = ({ visible, onClose, onSave }: any) => {
 
   const handleSave = () => {
     onSave({ question: selectedQuestion, answer });
-    setStep(1);
-    setSelectedQuestion('');
-    setCustomQuestion('');
-    setAnswer('');
-    onClose();
+    resetAndClose();
   };
 
   const resetAndClose = () => {
     setStep(1);
+    setSelectedQuestion('');
+    setCustomQuestion('');
+    setAnswer('');
     onClose();
   };
 
@@ -164,10 +173,26 @@ const PromptSlot = ({
 );
 
 const PromptsScreen = ({ navigation }: any) => {
-  const { updateOnboardingData } = useOnboarding();
+  const route = useRoute();
+  const { isEditMode } = route.params || {};
+  const { user, updateUser } = useApp();
+  const { onboardingData, updateOnboardingData } = useOnboarding();
+
   const [prompts, setPrompts] = useState<(Prompt | null)[]>([null, null, null]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
+
+  useEffect(() => {
+    if (isEditMode && user) {
+      const userPrompts = user.prompts || [];
+      const filledPrompts = [...userPrompts, ...Array(3 - userPrompts.length).fill(null)];
+      setPrompts(filledPrompts);
+    } else if (onboardingData) {
+      const onboardingPrompts = onboardingData.prompts || [];
+      const filledPrompts = [...onboardingPrompts, ...Array(3 - onboardingPrompts.length).fill(null)];
+      setPrompts(filledPrompts);
+    }
+  }, [isEditMode, user, onboardingData]);
 
   const handleOpenModal = (index: number) => {
     setCurrentPromptIndex(index);
@@ -180,10 +205,15 @@ const PromptsScreen = ({ navigation }: any) => {
     setPrompts(newPrompts);
   };
 
-  const handleContinue = () => {
+  const handleSave = async () => {
     const filledPrompts = prompts.filter(p => p !== null) as Prompt[];
-    updateOnboardingData({ prompts: filledPrompts });
-    navigation.navigate('OnboardingPhotos');
+    if (isEditMode) {
+      await updateUser({ prompts: filledPrompts });
+      navigation.goBack();
+    } else {
+      updateOnboardingData({ prompts: filledPrompts });
+      navigation.navigate('Photos');
+    }
   };
 
   const isNextDisabled = prompts.every(p => p === null);
@@ -198,7 +228,7 @@ const PromptsScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>What makes you, you?</Text>
+        <Text style={styles.title}>{isEditMode ? 'Edit Your Prompts' : 'What makes you, you?'}</Text>
         <Text style={styles.subtitle}>
           Add at least one prompt to give a sense of who you are.
         </Text>
@@ -222,8 +252,8 @@ const PromptsScreen = ({ navigation }: any) => {
             isNextDisabled && styles.disabledButton,
           ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}>
-          <Text style={styles.primaryButtonText}>Continue</Text>
+          onPress={handleSave}>
+          <Text style={styles.primaryButtonText}>{isEditMode ? 'Save' : 'Continue'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -231,6 +261,7 @@ const PromptsScreen = ({ navigation }: any) => {
         visible={isModalVisible}
         onClose={() => setModalVisible(false)}
         onSave={handleSavePrompt}
+        existingPrompt={prompts[currentPromptIndex]}
       />
     </SafeAreaView>
   );

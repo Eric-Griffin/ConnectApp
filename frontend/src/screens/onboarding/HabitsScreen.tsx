@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,8 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { useApp } from '../../context/AppContext';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { theme } from '../../theme';
 
@@ -59,17 +61,40 @@ const HabitSection = ({ title, options, selectedOption, onSelect }: any) => (
 );
 
 const HabitsScreen = ({ navigation }: any) => {
-  const { updateOnboardingData } = useOnboarding();
-  const [drinking, setDrinking] = useState(null);
-  const [smoking, setSmoking] = useState(null);
-  const [workout, setWorkout] = useState(null);
+  const route = useRoute();
+  const { isEditMode } = route.params || {};
+  const { user, updateUser } = useApp();
+  const { onboardingData, updateOnboardingData } = useOnboarding();
 
-  const handleContinue = () => {
-    updateOnboardingData({ habits: { drinking, smoking, workout } });
-    navigation.navigate('OnboardingPrompts');
+  const [habits, setHabits] = useState({
+    drinking: null,
+    smoking: null,
+    workout: null,
+  });
+
+  useEffect(() => {
+    if (isEditMode && user) {
+      setHabits(user.habits || { drinking: null, smoking: null, workout: null });
+    } else if (onboardingData) {
+      setHabits(onboardingData.habits || { drinking: null, smoking: null, workout: null });
+    }
+  }, [isEditMode, user, onboardingData]);
+
+  const handleSelect = (habit, value) => {
+    setHabits(prev => ({ ...prev, [habit]: value }));
   };
 
-  const isNextDisabled = !drinking || !smoking || !workout;
+  const handleSave = async () => {
+    if (isEditMode) {
+      await updateUser({ habits });
+      navigation.goBack();
+    } else {
+      updateOnboardingData({ habits });
+      navigation.navigate('Prompts');
+    }
+  };
+
+  const isNextDisabled = !habits.drinking || !habits.smoking || !habits.workout;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,7 +106,7 @@ const HabitsScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Your lifestyle</Text>
+        <Text style={styles.title}>{isEditMode ? 'Edit Your Lifestyle' : 'Your lifestyle'}</Text>
         <Text style={styles.subtitle}>
           Share as much as you're comfortable with. This helps us find better
           connections for you.
@@ -90,38 +115,40 @@ const HabitsScreen = ({ navigation }: any) => {
         <HabitSection
           title="Drinking"
           options={DRINKING_OPTIONS}
-          selectedOption={drinking}
-          onSelect={setDrinking}
+          selectedOption={habits.drinking}
+          onSelect={(value) => handleSelect('drinking', value)}
         />
 
         <HabitSection
           title="Smoking"
           options={SMOKING_OPTIONS}
-          selectedOption={smoking}
-          onSelect={setSmoking}
+          selectedOption={habits.smoking}
+          onSelect={(value) => handleSelect('smoking', value)}
         />
 
         <HabitSection
           title="Workout"
           options={WORKOUT_OPTIONS}
-          selectedOption={workout}
-          onSelect={setWorkout}
+          selectedOption={habits.workout}
+          onSelect={(value) => handleSelect('workout', value)}
         />
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('OnboardingPrompts')}>
-          <Text style={styles.skipText}>Skip</Text>
-        </TouchableOpacity>
+        {!isEditMode && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('OnboardingPrompts')}>
+            <Text style={styles.skipText}>Skip</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={[
             styles.primaryButton,
             isNextDisabled && styles.disabledButton,
           ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}>
-          <Text style={styles.primaryButtonText}>Continue</Text>
+          onPress={handleSave}>
+          <Text style={styles.primaryButtonText}>{isEditMode ? 'Save' : 'Continue'}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

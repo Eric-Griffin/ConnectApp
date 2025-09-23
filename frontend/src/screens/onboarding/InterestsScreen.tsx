@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,6 +8,8 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { useApp } from '../../context/AppContext';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { theme } from '../../theme';
 
@@ -41,11 +43,23 @@ const InterestPill = ({ text, isSelected, onPress }: any) => (
 );
 
 const InterestsScreen = ({ navigation }: any) => {
-  const { updateOnboardingData } = useOnboarding();
+  const route = useRoute();
+  const { isEditMode } = route.params || {};
+  const { user, updateUser } = useApp();
+  const { onboardingData, updateOnboardingData } = useOnboarding();
+
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [allInterests, setAllInterests] =
     useState<string[]>(PREDEFINED_INTERESTS);
+
+  useEffect(() => {
+    if (isEditMode && user) {
+      setSelectedInterests(user.interestTags || []);
+    } else if (onboardingData) {
+      setSelectedInterests(onboardingData.interestTags || []);
+    }
+  }, [isEditMode, user, onboardingData]);
 
   const handleSelectInterest = (interest: string) => {
     if (selectedInterests.includes(interest)) {
@@ -71,9 +85,14 @@ const InterestsScreen = ({ navigation }: any) => {
     }
   };
 
-  const handleContinue = () => {
-    updateOnboardingData({ interestTags: selectedInterests });
-    navigation.navigate('OnboardingHabits');
+  const handleSave = async () => {
+    if (isEditMode) {
+      await updateUser({ interestTags: selectedInterests });
+      navigation.goBack();
+    } else {
+      updateOnboardingData({ interestTags: selectedInterests });
+      navigation.navigate('Habits');
+    }
   };
 
   const filteredInterests = useMemo(
@@ -97,7 +116,7 @@ const InterestsScreen = ({ navigation }: any) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Your interests</Text>
+        <Text style={styles.title}>{isEditMode ? 'Edit Your Interests' : 'Your interests'}</Text>
         <Text style={styles.subtitle}>
           Select a few of your interests and let everyone know what you're
           passionate about.
@@ -141,13 +160,15 @@ const InterestsScreen = ({ navigation }: any) => {
             isNextDisabled && styles.disabledButton,
           ]}
           disabled={isNextDisabled}
-          onPress={handleContinue}>
-          <Text style={styles.primaryButtonText}>Continue</Text>
+          onPress={handleSave}>
+          <Text style={styles.primaryButtonText}>{isEditMode ? 'Save' : 'Continue'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('OnboardingHabits')}>
-          <Text style={styles.skipText}>Skip</Text>
-        </TouchableOpacity>
+        {!isEditMode && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('OnboardingHabits')}>
+            <Text style={styles.skipText}>Skip</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );

@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DiscoverScreen from '../screens/DiscoverScreen';
 import MyEventsStackNavigator from './MyEventsStackNavigator';
 import MatchesScreen from '../screens/MatchesScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import ProfileStackNavigator from './ProfileStackNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,7 +23,7 @@ function MainTabNavigator() {
       <Tab.Screen name="Discover" component={DiscoverScreen} />
       <Tab.Screen name="My Events" component={MyEventsStackNavigator} />
       <Tab.Screen name="Matches" component={MatchesScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Profile" component={ProfileStackNavigator} />
     </Tab.Navigator>
   );
 }
