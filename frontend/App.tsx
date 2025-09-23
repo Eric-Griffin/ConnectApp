@@ -23,7 +23,6 @@ import NotificationsScreen from './src/screens/onboarding/NotificationsScreen';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
 import MatchScreen from './src/screens/MatchScreen';
 import ChatScreen from './src/screens/ChatScreen';
-import EditProfileScreen from './src/screens/EditProfileScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import EventMatchesScreen from './src/screens/EventMatchesScreen';
 
@@ -53,7 +52,6 @@ const AppNavigator = () => {
       {/* Main App */}
       <Stack.Screen name="MainApp" component={MainTabNavigator} />
       <Stack.Screen name="Chat" component={ChatScreen} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="EventMatches" component={EventMatchesScreen} />
       
