@@ -1,12 +1,16 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AppContext = createContext({
+  user: null,
   likedEvents: [],
   matches: [],
+  fetchUser: async () => {},
+  updateUser: async (data) => {},
   addLikedEvent: (event) => {},
   removeLikedEvent: (eventId) => {},
-  // The addMatch function now accepts an eventId
   addMatch: (person, eventId, navigation) => {},
+  setAuthToken: (token) => {},
 });
 
 export const useApp = () => {
@@ -14,8 +18,57 @@ export const useApp = () => {
 };
 
 export const AppProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [authToken, setAuthToken] = useState(null);
   const [likedEvents, setLikedEvents] = useState([]);
   const [matches, setMatches] = useState([]);
+
+  useEffect(() => {
+    const loadToken = async () => {
+      const token = await AsyncStorage.getItem('authToken');
+      if (token) {
+        setAuthToken(token);
+      }
+    };
+    loadToken();
+  }, []);
+
+  useEffect(() => {
+    if (authToken) {
+      fetchUser();
+    }
+  }, [authToken]);
+
+  const fetchUser = async () => {
+    if (!authToken) return;
+    try {
+      const response = await fetch('http://10.0.2.2:5001/api/users/me', {
+        headers: { 'Authorization': `Bearer ${authToken}` },
+      });
+      const data = await response.json();
+      setUser(data);
+    } catch (error) {
+      console.error('Failed to fetch user:', error);
+    }
+  };
+
+  const updateUser = async (updatedData) => {
+    if (!authToken) return;
+    try {
+      const response = await fetch('http://10.0.2.2:5001/api/users/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(updatedData),
+      });
+      const data = await response.json();
+      setUser(data);
+    } catch (error) {
+      console.error('Failed to update user:', error);
+    }
+  };
 
   const addLikedEvent = (event) => {
     if (!likedEvents.find(e => e._id === event._id)) {
@@ -28,20 +81,16 @@ export const AppProvider = ({ children }) => {
     try {
       await fetch('http://10.0.2.2:5001/api/swipes/event', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: '60d5ecb4b392d326a0f1b9a1', eventId }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+        body: JSON.stringify({ userId: user._id, eventId }),
       });
     } catch (error) {
       console.error('Failed to unlike event:', error);
     }
   };
 
-  // THIS IS THE CORRECTED FUNCTION
   const addMatch = (person, eventId, navigation) => {
-    // We create a new match object that includes the eventId
     const newMatch = { ...person, eventId: eventId };
-
-    // We check for duplicates based on both the person's ID and the event ID
     if (!matches.find(m => m._id === person._id && m.eventId === eventId)) {
       setMatches(prevMatches => [...prevMatches, newMatch]);
     }
@@ -49,11 +98,15 @@ export const AppProvider = ({ children }) => {
   };
 
   const value = {
+    user,
     likedEvents,
     matches,
+    fetchUser,
+    updateUser,
     addLikedEvent,
     removeLikedEvent,
     addMatch,
+    setAuthToken,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

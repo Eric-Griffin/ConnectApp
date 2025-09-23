@@ -8,13 +8,16 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useOnboarding } from '../context/OnboardingContext';
 import { theme } from '../theme';
+import { useApp } from '../context/AppContext';
 
 const PhoneNumberScreen = ({ route, navigation }: any) => {
   const { flow } = route.params || {}; // Default to an empty object if params is undefined
   const [phoneNumber, setPhoneNumber] = useState('');
   const { updateOnboardingData } = useOnboarding();
+  const { setAuthToken } = useApp();
 
   const isNextDisabled = phoneNumber.length < 10;
 
@@ -38,6 +41,8 @@ const PhoneNumberScreen = ({ route, navigation }: any) => {
           Alert.alert('Sign In Failed', 'No account with this number exists.');
           navigation.navigate('Welcome');
         } else {
+          await AsyncStorage.setItem('authToken', data.token);
+          setAuthToken(data.token);
           updateOnboardingData({ user: data.user, token: data.token });
           navigation.navigate('OTP', { flow });
         }

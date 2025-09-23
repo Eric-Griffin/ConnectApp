@@ -6,7 +6,10 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
+import { useApp } from '../context/AppContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // This is a reusable component for the list items
 const ProfileMenuItem = ({ icon, text, onPress }) => (
@@ -18,8 +21,12 @@ const ProfileMenuItem = ({ icon, text, onPress }) => (
 );
 
 function ProfileScreen({ navigation }) {
+  const { user, setAuthToken } = useApp();
+
   // This function will handle signing out
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    await AsyncStorage.removeItem('authToken');
+    setAuthToken(null);
     // We reset the entire navigation stack back to the Welcome screen
     navigation.reset({
       index: 0,
@@ -27,14 +34,22 @@ function ProfileScreen({ navigation }) {
     });
   };
 
+  if (!user) {
+    return (
+      <SafeAreaView style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.profileHeader}>
         <Image
-          source={{ uri: 'https://placehold.co/200x200/007AFF/FFFFFF?text=You' }}
+          source={{ uri: user.photos?.[0] || 'https://placehold.co/200x200/007AFF/FFFFFF?text=You' }}
           style={styles.avatar}
         />
-        <Text style={styles.name}>Eric</Text>
+        <Text style={styles.name}>{user.name}</Text>
         <Text style={styles.location}>Bengaluru, India</Text>
       </View>
 
@@ -62,6 +77,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   profileHeader: {
     alignItems: 'center',
