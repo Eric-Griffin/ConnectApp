@@ -8,16 +8,13 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-// 1. Import the type definitions we just created
 import { RootStackParamList } from '../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { theme } from '../theme';
 
-// 2. Define the type for the navigation prop
 type HeaderNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const CustomHeader = () => {
-  // 3. Tell the useNavigation hook to use our defined type
   const navigation = useNavigation<HeaderNavigationProp>();
 
   return (
@@ -27,12 +24,13 @@ const CustomHeader = () => {
         <View style={styles.titleContainer}>
           <Text style={styles.appName}>Connect</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.sideComponent} 
-          onPress={() => navigation.navigate('Profile')} // This is now type-safe
-        >
+        <TouchableOpacity
+          style={styles.sideComponent}
+          onPress={() => navigation.navigate('Profile')}>
           <Image
-            source={{ uri: 'https://placehold.co/100x100/EFEFF4/2C2C2E?text=E' }}
+            source={{
+              uri: 'https://placehold.co/100x100/EFEFF4/2C2C2E?text=E',
+            }}
             style={styles.profileIcon}
           />
         </TouchableOpacity>
@@ -43,7 +41,7 @@ const CustomHeader = () => {
 
 const styles = StyleSheet.create({
   headerSafe: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
@@ -60,8 +58,8 @@ const styles = StyleSheet.create({
   },
   appName: {
     fontSize: 28,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#A8D1E7', 
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.primary,
   },
   profileIcon: {
     width: 40,
@@ -69,7 +67,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   sideComponent: {
-    width: 40, 
+    width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',

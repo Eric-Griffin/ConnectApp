@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
 
 import SwipeableCard from '../components/SwipeableCard';
 import { useApp } from '../context/AppContext';
 import CustomHeader from '../components/CustomHeader';
+import { theme } from '../theme';
 
-// 1. We define the "shape" of an Event object
 type Event = {
   _id: string;
   name: string;
@@ -24,15 +30,14 @@ const EventCard = ({ card }: { card: Event }) => (
 );
 
 const EmptyState = ({ title, subtitle }: any) => (
-    <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>{title}</Text>
-        <Text style={styles.emptySubtext}>{subtitle}</Text>
-    </View>
+  <View style={styles.emptyContainer}>
+    <Text style={styles.emptyText}>{title}</Text>
+    <Text style={styles.emptySubtext}>{subtitle}</Text>
+  </View>
 );
 
 function DiscoverScreen() {
   const { addLikedEvent } = useApp();
-  // 2. We tell useState the correct types for our state variables
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,19 +70,21 @@ function DiscoverScreen() {
 
   if (isLoading) {
     return (
-        <View style={styles.container}>
-            <CustomHeader />
-            <View style={styles.emptyContainer}><ActivityIndicator size="large" color="#A8D1E7" /></View>
+      <View style={styles.container}>
+        <CustomHeader />
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
+      </View>
     );
   }
 
   if (error) {
     return (
-        <View style={styles.container}>
-            <CustomHeader />
-            <EmptyState title="Something went wrong" subtitle={error} />
-        </View>
+      <View style={styles.container}>
+        <CustomHeader />
+        <EmptyState title="Something went wrong" subtitle={error} />
+      </View>
     );
   }
 
@@ -86,17 +93,22 @@ function DiscoverScreen() {
       <CustomHeader />
       <View style={styles.deckContainer}>
         {currentIndex < events.length ? (
-          events.slice(currentIndex).reverse().map((event) => (
-            <SwipeableCard
-              key={event._id}
-              onSwipeLeft={handleSwipe}
-              onSwipeRight={handleSwipeRight}
-            >
-              <EventCard card={event} />
-            </SwipeableCard>
-          ))
+          events
+            .slice(currentIndex)
+            .reverse()
+            .map(event => (
+              <SwipeableCard
+                key={event._id}
+                onSwipeLeft={handleSwipe}
+                onSwipeRight={handleSwipeRight}>
+                <EventCard card={event} />
+              </SwipeableCard>
+            ))
         ) : (
-          <EmptyState title="No more events" subtitle="You've seen them all!" />
+          <EmptyState
+            title="No more events"
+            subtitle="You've seen them all!"
+          />
         )}
       </View>
     </View>
@@ -106,7 +118,7 @@ function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
   },
   deckContainer: {
     flex: 1,
@@ -117,7 +129,7 @@ const styles = StyleSheet.create({
     width: '90%',
     height: '90%',
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -142,14 +154,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 24,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#FFFFFF',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.white,
     lineHeight: 30,
   },
   cardSubtitle: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#FFFFFF',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.white,
     marginTop: 4,
     lineHeight: 22,
   },
@@ -161,14 +173,14 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 22,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#2C2C2E',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
     marginTop: 8,
     textAlign: 'center',
   },

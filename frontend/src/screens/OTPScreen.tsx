@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
+import { theme } from '../theme';
 
 const KeypadButton = ({ value, onPress }: any) => (
   <TouchableOpacity style={styles.keypadButton} onPress={() => onPress(value)}>
@@ -41,25 +42,22 @@ const OTPScreen = ({ route, navigation }: any) => {
   const handleDelete = () => {
     setOtp(otp.slice(0, -1));
   };
-  
+
   const handleSendAgain = () => {
     if (timer === 0) {
       setTimer(90);
     }
   };
-  
+
   useEffect(() => {
     if (otp.length === 4) {
       if (flow === 'signIn') {
-        // For sign-in, navigate directly to the main app
         navigation.navigate('MainApp');
       } else {
-        // For sign-up, continue the onboarding flow
         navigation.navigate('OnboardingProfileDetails');
       }
     }
   }, [otp, navigation, flow]);
-
 
   const formattedTime = `${Math.floor(timer / 60)
     .toString()
@@ -77,7 +75,9 @@ const OTPScreen = ({ route, navigation }: any) => {
 
       <View style={styles.content}>
         <Text style={styles.timerText}>{formattedTime}</Text>
-        <Text style={styles.title}>Type the verification code we've sent you</Text>
+        <Text style={styles.title}>
+          Type the verification code we've sent you
+        </Text>
 
         <View style={styles.otpContainer}>
           <OTPBox digit={otp[0]} />
@@ -104,12 +104,17 @@ const OTPScreen = ({ route, navigation }: any) => {
           <KeypadButton value="9" onPress={handleKeyPress} />
         </View>
         <View style={styles.keypadRow}>
-          <TouchableOpacity 
-            style={styles.sendAgainButton} 
+          <TouchableOpacity
+            style={styles.sendAgainButton}
             onPress={handleSendAgain}
-            disabled={timer > 0}
-          >
-            <Text style={[styles.sendAgainText, timer > 0 && styles.sendAgainDisabled]}>Send again</Text>
+            disabled={timer > 0}>
+            <Text
+              style={[
+                styles.sendAgainText,
+                timer > 0 && styles.sendAgainDisabled,
+              ]}>
+              Send again
+            </Text>
           </TouchableOpacity>
           <KeypadButton value="0" onPress={handleKeyPress} />
           <TouchableOpacity style={styles.keypadButton} onPress={handleDelete}>
@@ -124,7 +129,7 @@ const OTPScreen = ({ route, navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
   },
   header: {
     padding: 20,
@@ -134,14 +139,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: theme.colors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButton: {
     fontSize: 24,
-    color: '#000000',
-    fontFamily: 'Sk-Modernist-Regular',
+    color: theme.colors.black,
+    fontFamily: theme.fonts.regular,
   },
   content: {
     flex: 1,
@@ -150,14 +155,14 @@ const styles = StyleSheet.create({
   },
   timerText: {
     fontSize: 32,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 16,
   },
   title: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
     textAlign: 'center',
     maxWidth: '70%',
     lineHeight: 22,
@@ -177,13 +182,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   otpBoxFilled: {
-    backgroundColor: '#A8D1E7',
-    borderColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   otpText: {
     fontSize: 24,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
   },
   keypadContainer: {
     padding: 20,
@@ -201,7 +206,7 @@ const styles = StyleSheet.create({
   },
   keypadButtonText: {
     fontSize: 28,
-    fontFamily: 'Sk-Modernist-Regular',
+    fontFamily: theme.fonts.regular,
   },
   sendAgainButton: {
     width: 80,
@@ -211,11 +216,11 @@ const styles = StyleSheet.create({
   },
   sendAgainText: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#A8D1E7',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.primary,
   },
   sendAgainDisabled: {
-    color: '#8E8E93',
+    color: theme.colors.gray,
   },
 });
 

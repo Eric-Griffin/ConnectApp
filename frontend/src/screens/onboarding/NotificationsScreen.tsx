@@ -7,12 +7,12 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { theme } from '../../theme';
 
 const NotificationsScreen = ({ navigation }: any) => {
   const { submitOnboardingData } = useOnboarding();
 
   const handleAllow = async () => {
-    // In a real app, this would trigger the native permission pop-up.
     await submitOnboardingData();
     navigation.navigate('MainApp');
   };
@@ -29,9 +29,8 @@ const NotificationsScreen = ({ navigation }: any) => {
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.content}>
-        {/* Placeholder for the chat bubble graphic */}
         <View style={styles.graphicPlaceholder} />
 
         <Text style={styles.title}>Enable notifications</Text>
@@ -41,10 +40,7 @@ const NotificationsScreen = ({ navigation }: any) => {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={handleAllow}
-        >
+        <TouchableOpacity style={styles.primaryButton} onPress={handleAllow}>
           <Text style={styles.primaryButtonText}>I want to be notified</Text>
         </TouchableOpacity>
       </View>
@@ -55,7 +51,7 @@ const NotificationsScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
   },
   header: {
     padding: 20,
@@ -63,8 +59,8 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
   },
   content: {
     flex: 1,
@@ -75,22 +71,22 @@ const styles = StyleSheet.create({
   graphicPlaceholder: {
     width: 180,
     height: 180,
-    backgroundColor: '#F0F0F0', // Placeholder color
+    backgroundColor: theme.colors.lightGray,
     borderRadius: 20,
     marginBottom: 40,
   },
   title: {
     fontSize: 28,
-    fontFamily: 'Sk-Modernist-Bold',
-    color: '#000000',
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.black,
     marginBottom: 16,
     lineHeight: 36,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Regular',
-    color: '#8E8E93',
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.gray,
     textAlign: 'center',
     lineHeight: 22,
     maxWidth: '80%',
@@ -99,15 +95,15 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   primaryButton: {
-    backgroundColor: '#A8D1E7',
+    backgroundColor: theme.colors.primary,
     padding: 18,
     borderRadius: 12,
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 16,
-    fontFamily: 'Sk-Modernist-Bold',
+    fontFamily: theme.fonts.bold,
   },
 });
 
