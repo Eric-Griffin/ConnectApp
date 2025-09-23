@@ -1,31 +1,13 @@
-// android/app/build.gradle
+// ... other apply plugin lines
+android {
+    ndkVersion rootProject.ext.ndkVersion
 
-apply plugin: "com.android.application"
-apply plugin: "com.facebook.react"
-apply plugin: "org.jetbrains.kotlin.android"
+    // Add this line
+    namespace "com.connectapp"
 
-// Add this line
-apply plugin: "expo-modules-core"
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
-
-/**
- * This is the configuration block to customize your React Native Android app.
- * By default you don't need to apply any configuration, just uncomment the lines you need.
- */
-react {
-    /*
-     * (get rid of this block if you are not using React Native <= 0.72.x)
-     *
-     * In previous versions of React Native, Android binaries for dependencies were installed from
-     * Bintray by default. Bintray is now deprecated, and the community has moved to Maven Central.
-     *
-     * This means that your app is still using Bintray repositories to download Android dependencies.
-     * We recommend you remove this block and check your dependencies to make sure they are using
-     * Maven Central.
-     *
-     * If you really need this old behaviour, you can pass true to `useBintray()` function.
-     */
-    // useBintray()
-}
-
-// ... the rest of the file remains the same
+    defaultConfig {
+        applicationId "com.connectapp"
+        minSdkVersion rootProject.ext.minSdkVersion
+        // ... rest of the file
