@@ -1,47 +1,40 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  TextInput,
+  TextInput, // 1. Make sure TextInput is imported
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useRoute } from '@react-navigation/native';
-import { useApp } from '../../context/AppContext';
+
 const NameScreen = ({ navigation }: any) => {
-  const route = useRoute();
-  const { isEditMode } = route.params || {};
-  const { user, updateUser } = useApp();
+  const [firstName, setFirstName] = useState('');
+  const [day, setDay] = useState('');
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
 
-  const [name, setName] = useState('');
-  const [birthday, setBirthday] = useState('');
-  const [gender, setGender] = useState('');
-
+  // 2. THIS IS THE FIX: We tell TypeScript these refs will hold a TextInput component.
   const monthInputRef = useRef<TextInput>(null);
   const yearInputRef = useRef<TextInput>(null);
 
-  useEffect(() => {
-    if (isEditMode && user) {
-      setName(user.name || '');
-      setBirthday(user.birthday || '');
-      setGender(user.gender || '');
-    }
-  }, [isEditMode, user]);
+  const isNextDisabled = !firstName || !day || !month || !year;
 
-  const handleSave = async () => {
-    if (isEditMode) {
-      await updateUser({ name, birthday, gender });
-      navigation.goBack();
-    } else {
-      // This part is for the onboarding flow, which is not part of this task
-      navigation.navigate('Email');
+  const handleDayChange = (text: string) => {
+    setDay(text);
+    if (text.length === 2) {
+      monthInputRef.current?.focus();
     }
   };
 
-  const isNextDisabled = !name || !birthday || !gender;
+  const handleMonthChange = (text: string) => {
+    setMonth(text);
+    if (text.length === 2) {
+      yearInputRef.current?.focus();
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -50,31 +43,45 @@ const NameScreen = ({ navigation }: any) => {
         style={styles.flexOne}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>{isEditMode ? 'Edit Your Basics' : 'What\'s your name?'}</Text>
+          <Text style={styles.title}>What's your name?</Text>
           
           <Text style={styles.label}>First Name</Text>
           <TextInput
             style={styles.input}
             placeholder="Enter your first name"
-            value={name}
-            onChangeText={setName}
+            value={firstName}
+            onChangeText={setFirstName}
           />
 
           <Text style={styles.label}>Birthday</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="YYYY-MM-DD"
-            value={birthday}
-            onChangeText={setBirthday}
-          />
-
-          <Text style={styles.label}>Gender</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your gender"
-            value={gender}
-            onChangeText={setGender}
-          />
+          <View style={styles.birthdayContainer}>
+            <TextInput
+              style={[styles.input, styles.birthdayInput]}
+              placeholder="DD"
+              keyboardType="number-pad"
+              maxLength={2}
+              value={day}
+              onChangeText={handleDayChange}
+            />
+            <TextInput
+              ref={monthInputRef} // Attach the ref
+              style={[styles.input, styles.birthdayInput]}
+              placeholder="MM"
+              keyboardType="number-pad"
+              maxLength={2}
+              value={month}
+              onChangeText={handleMonthChange}
+            />
+            <TextInput
+              ref={yearInputRef} // Attach the ref
+              style={[styles.input, styles.birthdayInput]}
+              placeholder="YYYY"
+              keyboardType="number-pad"
+              maxLength={4}
+              value={year}
+              onChangeText={setYear}
+            />
+          </View>
         </View>
 
         <View style={styles.footer}>
@@ -82,9 +89,9 @@ const NameScreen = ({ navigation }: any) => {
           <TouchableOpacity
             style={[styles.nextButton, isNextDisabled && styles.disabledButton]}
             disabled={isNextDisabled}
-            onPress={handleSave}
+            onPress={() => navigation.navigate('OnboardingEmail')}
           >
-            <Text style={styles.nextButtonText}>{isEditMode ? 'Save' : '→'}</Text>
+            <Text style={styles.nextButtonText}>→</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -124,6 +131,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 24,
     color: '#2C2C2E',
+  },
+  birthdayContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  birthdayInput: {
+    width: '30%',
+    textAlign: 'center',
   },
   footer: {
     padding: 24,

@@ -12,12 +12,19 @@ import {
 import { useApp } from '../context/AppContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ProfileSection = ({ title, children, onPress }) => (
+const ProfileRow = ({ label, value, onPress }) => (
+  <TouchableOpacity onPress={onPress} style={styles.row}>
+    <Text style={styles.rowLabel}>{label}</Text>
+    <View style={styles.rowValueContainer}>
+      <Text style={styles.rowValue}>{value}</Text>
+      <Text style={styles.rowArrow}>›</Text>
+    </View>
+  </TouchableOpacity>
+);
+
+const ProfileSection = ({ title, children }) => (
   <View style={styles.sectionContainer}>
-    <TouchableOpacity onPress={onPress} style={styles.sectionHeader}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <Text style={styles.editButton}>Edit</Text>
-    </TouchableOpacity>
+    <Text style={styles.sectionTitle}>{title}</Text>
     <View style={styles.sectionContent}>
       {children}
     </View>
@@ -48,51 +55,65 @@ function ProfileScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.profileHeader}>
-          <Image
-            source={{ uri: user.photos?.[0] || 'https://placehold.co/200x200/007AFF/FFFFFF?text=You' }}
-            style={styles.avatar}
-          />
+          <TouchableOpacity onPress={() => navigation.navigate('Photos', { isEditMode: true })}>
+            <Image
+              source={{ uri: user.photos?.[0] || 'https://placehold.co/200x200/007AFF/FFFFFF?text=You' }}
+              style={styles.avatar}
+            />
+          </TouchableOpacity>
           <Text style={styles.name}>{user.name}</Text>
           <Text style={styles.location}>Bengaluru, India</Text>
         </View>
 
-        <ProfileSection title="My Basics" onPress={() => navigation.navigate('Name', { isEditMode: true })}>
-          <Text style={styles.sectionText}>Name: {user.name}</Text>
-          <Text style={styles.sectionText}>Birthday: {user.birthday}</Text>
-          <Text style={styles.sectionText}>Gender: {user.gender}</Text>
+        <ProfileSection title="My Basics">
+          <ProfileRow label="Name" value={user.name} onPress={() => navigation.navigate('Name', { isEditMode: true })} />
+          <ProfileRow label="Birthday" value={user.birthday} onPress={() => navigation.navigate('Name', { isEditMode: true })} />
+          <ProfileRow label="Gender" value={user.gender} onPress={() => navigation.navigate('Gender', { isEditMode: true })} />
         </ProfileSection>
 
-        <ProfileSection title="My Photos" onPress={() => navigation.navigate('Photos', { isEditMode: true })}>
-          <View style={styles.photoGrid}>
-            {user.photos?.map((photo, index) => (
-              <Image key={index} source={{ uri: photo }} style={styles.photo} />
-            ))}
-          </View>
+        <ProfileSection title="My Photos">
+          <TouchableOpacity onPress={() => navigation.navigate('Photos', { isEditMode: true })}>
+            <View style={styles.photoGrid}>
+              {user.photos?.map((photo, index) => (
+                <Image key={index} source={{ uri: photo }} style={styles.photo} />
+              ))}
+            </View>
+          </TouchableOpacity>
         </ProfileSection>
 
-        <ProfileSection title="My Interests" onPress={() => navigation.navigate('Interests', { isEditMode: true })}>
-          <View style={styles.tagContainer}>
-            {user.interestTags?.map((tag, index) => (
-              <View key={index} style={styles.tag}>
-                <Text style={styles.tagText}>{tag}</Text>
+        <ProfileSection title="My Interests">
+          <TouchableOpacity onPress={() => navigation.navigate('Interests', { isEditMode: true })}>
+            <View style={styles.tagContainer}>
+              {user.interestTags?.map((tag, index) => (
+                <View key={index} style={styles.tag}>
+                  <Text style={styles.tagText}>{tag}</Text>
+                </View>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </ProfileSection>
+
+        <ProfileSection title="My Habits">
+          <TouchableOpacity onPress={() => navigation.navigate('Habits', { isEditMode: true })}>
+            <Text style={styles.sectionText}>Drinking: {user.habits?.drinking}</Text>
+            <Text style={styles.sectionText}>Smoking: {user.habits?.smoking}</Text>
+            <Text style={styles.sectionText}>Workout: {user.habits?.workout}</Text>
+          </TouchableOpacity>
+        </ProfileSection>
+
+        <ProfileSection title="My Prompts">
+          <TouchableOpacity onPress={() => navigation.navigate('Prompts', { isEditMode: true })}>
+            {user.prompts?.map((prompt, index) => (
+              <View key={index} style={styles.promptContainer}>
+                <Text style={styles.promptQuestion}>{prompt.question}</Text>
+                <Text style={styles.promptAnswer}>{prompt.answer}</Text>
               </View>
             ))}
-          </View>
+          </TouchableOpacity>
         </ProfileSection>
 
-        <ProfileSection title="My Habits" onPress={() => navigation.navigate('Habits', { isEditMode: true })}>
-          <Text style={styles.sectionText}>Drinking: {user.habits?.drinking}</Text>
-          <Text style={styles.sectionText}>Smoking: {user.habits?.smoking}</Text>
-          <Text style={styles.sectionText}>Workout: {user.habits?.workout}</Text>
-        </ProfileSection>
-
-        <ProfileSection title="My Prompts" onPress={() => navigation.navigate('Prompts', { isEditMode: true })}>
-          {user.prompts?.map((prompt, index) => (
-            <View key={index} style={styles.promptContainer}>
-              <Text style={styles.promptQuestion}>{prompt.question}</Text>
-              <Text style={styles.promptAnswer}>{prompt.answer}</Text>
-            </View>
-          ))}
+        <ProfileSection title="My Phone Number">
+          <ProfileRow label="Phone Number" value={user.phoneNumber} onPress={() => navigation.navigate('PhoneNumber', { isEditMode: true })} />
         </ProfileSection>
 
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
@@ -139,27 +160,42 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 15,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1A1A1A',
-  },
-  editButton: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '500',
+    marginBottom: 10,
   },
   sectionContent: {},
   sectionText: {
     fontSize: 16,
     color: '#333',
     marginBottom: 5,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EFEFEF',
+  },
+  rowLabel: {
+    fontSize: 16,
+    color: '#333',
+  },
+  rowValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rowValue: {
+    fontSize: 16,
+    color: '#8E8E93',
+    marginRight: 10,
+  },
+  rowArrow: {
+    fontSize: 20,
+    color: '#C7C7CC',
   },
   photoGrid: {
     flexDirection: 'row',

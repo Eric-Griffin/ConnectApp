@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,48 +9,84 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRoute } from '@react-navigation/native';
 import { useOnboarding } from '../context/OnboardingContext';
 import { theme } from '../theme';
 import { useApp } from '../context/AppContext';
 
-const PhoneNumberScreen = ({ route, navigation }: any) => {
-  const { flow } = route.params || {}; // Default to an empty object if params is undefined
-  const [phoneNumber, setPhoneNumber] = useState('');
+const PhoneNumberScreen = ({ navigation }: any) => {
+  const route = useRoute();
+  const { flow, isEditMode } = route.params || {};
+  const { user, setAuthToken, fetchUser } = useApp();
   const { updateOnboardingData } = useOnboarding();
-  const { setAuthToken } = useApp();
+
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  useEffect(() => {
+    if (isEditMode && user) {
+      setPhoneNumber(user.phoneNumber.replace('+1', ''));
+    }
+  }, [isEditMode, user]);
 
   const isNextDisabled = phoneNumber.length < 10;
 
   const handleContinue = async () => {
-    try {
-      const response = await fetch(
-        'http://10.0.2.2:5001/api/auth/register-phone',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+    if (isEditMode) {
+      try {
+        const token = await AsyncStorage.getItem('authToken');
+        const response = await fetch(
+          'http://10.0.2.2:5001/api/users/me/phone',
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ phoneNumber: `+1${phoneNumber}` }),
           },
-          body: JSON.stringify({ phoneNumber: `+1${phoneNumber}` }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        if (flow === 'signIn' && data.isNew) {
-          Alert.alert('Sign In Failed', 'No account with this number exists.');
-          navigation.navigate('Welcome');
+        );
+        const data = await response.json();
+        if (response.ok) {
+          await fetchUser();
+          Alert.alert('Success', 'Your phone number has been updated.');
+          navigation.goBack();
         } else {
-          await AsyncStorage.setItem('authToken', data.token);
-          setAuthToken(data.token);
-          updateOnboardingData({ user: data.user, token: data.token });
-          navigation.navigate('OTP', { flow });
+          Alert.alert('Error', data.message || 'Something went wrong');
         }
-      } else {
-        Alert.alert('Error', data.message || 'Something went wrong');
+      } catch (error) {
+        Alert.alert('Error', 'Could not connect to the server');
       }
-    } catch (error) {
-      Alert.alert('Error', 'Could not connect to the server');
+    } else {
+      try {
+        const response = await fetch(
+          'http://10.0.2.2:5001/api/auth/register-phone',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ phoneNumber: `+1${phoneNumber}` }),
+          },
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          if (flow === 'signIn' && data.isNew) {
+            Alert.alert('Sign In Failed', 'No account with this number exists.');
+            navigation.navigate('Welcome');
+          } else {
+            await AsyncStorage.setItem('authToken', data.token);
+            setAuthToken(data.token);
+            updateOnboardingData({ user: data.user, token: data.token });
+            navigation.navigate('OTP', { flow });
+          }
+        } else {
+          Alert.alert('Error', data.message || 'Something went wrong');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Could not connect to the server');
+      }
     }
   };
 
@@ -60,12 +96,12 @@ const PhoneNumberScreen = ({ route, navigation }: any) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButton}>‹</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Number</Text>
+        <Text style={styles.headerTitle}>{isEditMode ? 'Update Number' : 'Number'}</Text>
         <View style={{ width: 20 }} />
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>My mobile</Text>
+        <Text style={styles.title}>{isEditMode ? 'Update your mobile' : 'My mobile'}</Text>
         <Text style={styles.subtitle}>
           Please enter your valid phone number. We will send you a 4-digit code
           to verify your account.
@@ -92,7 +128,7 @@ const PhoneNumberScreen = ({ route, navigation }: any) => {
           ]}
           disabled={isNextDisabled}
           onPress={handleContinue}>
-          <Text style={styles.primaryButtonText}>Continue</Text>
+          <Text style={styles.primaryButtonText}>{isEditMode ? 'Save' : 'Continue'}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

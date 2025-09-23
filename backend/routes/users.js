@@ -42,6 +42,29 @@ router.put('/me', protect, async (req, res) => {
     }
 });
 
+// @route   PUT /api/users/me/phone
+// @desc    Update user phone number
+router.put('/me/phone', protect, async (req, res) => {
+    const { phoneNumber } = req.body;
+    if (!phoneNumber) {
+        return res.status(400).json({ msg: 'Phone number is required' });
+    }
+
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        user.phoneNumber = phoneNumber;
+        await user.save();
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 // THIS IS THE UPDATED ROUTE
 // @route   GET /api/users/all
 // @desc    Get all users (for testing the people deck)
